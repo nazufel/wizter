@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/nazufel/telepresence-demo/proto/wizard"
+	pb "github.com/nazufel/telepresence-demo/pkg/proto/wizard"
 
 	"google.golang.org/grpc"
 )
@@ -27,10 +27,10 @@ func main() {
 
 	defer cancel()
 
-	r, err := c.List(ctx, &pb.Wizard{
-		Id:    1,
-		Name:  "Harry Potter",
-		House: "Gryffindor",
+	r, err := c.Add(ctx, &pb.Wizard{
+		Id:         1,
+		Name:       "Harry Potter",
+		House:      "Gryffindor",
 		DeathEater: true,
 	})
 	if err != nil {
@@ -38,9 +38,9 @@ func main() {
 	}
 
 	wizard := pb.Wizard{
-		Id:    r.GetId(),
-		Name:  r.GetName(),
-		House: r.GetHouse(),
+		Id:         r.GetId(),
+		Name:       r.GetName(),
+		House:      r.GetHouse(),
 		DeathEater: r.GetDeathEater(),
 	}
 

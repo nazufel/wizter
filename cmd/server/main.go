@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/nazufel/telepresence-demo/proto/wizard"
+	pb "github.com/nazufel/telepresence-demo/pkg/proto/wizard"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
@@ -17,14 +17,7 @@ const (
 	grpcPort = ":9999"
 )
 
-var (
-	dbName       string
-	dbConnection string
-	dbHost       string
-	dbUsername   string
-	dbPassword   string
-	ctx          context.Context
-)
+var dbConnection = "mongodb://" + os.Getenv("MONGO_USER") + ":" + os.Getenv("MONGO_PASSWORD") + "@" + os.Getenv("MONGO_HOST") + ":27017" + "/" + os.Getenv("MONGO_DATABASE") + "?authSource=admin"
 
 type server struct {
 	pb.UnimplementedWizardServiceServer
@@ -33,11 +26,6 @@ type server struct {
 func main() {
 	log.Println("starting wizards server...")
 	log.Println("trying to connect to database")
-
-	_, err := newStorage()
-	if err != nil {
-		log.Fatalf("error setting up new storage: %v", err)
-	}
 
 	lis, err := net.Listen("tcp", grpcPort)
 	if err != nil {
@@ -54,69 +42,36 @@ func main() {
 	}
 }
 
-// Storage struct holds information about connecting to the DB
-type storage struct {
-	db *mongo.Database
-	c  *mongo.Client
-}
+func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 
-func newStorage() (*storage, error) {
+	log.Printf("receved wizard: %s", wz)
 
 	var err error
 
-	if len(os.Getenv("MONGO_DATABASE")) == 0 {
-		log.Fatal("MONGO_DATABASE is a required env variable. Please define a database to use.")
-	}
-	dbName = os.Getenv("MONGO_DATABASE")
-
-	if len(os.Getenv("MONGO_HOST")) == 0 {
-		log.Fatal("MONGO_HOST is a required env variable. Please define a database host string to use.")
-	}
-	dbHost = os.Getenv("MONGO_HOST")
-
-	if len(os.Getenv("MONGO_USER")) == 0 {
-		log.Fatal("MONGO_USER is a required env variable. Please define a database username string to use.")
-	}
-	dbUsername = os.Getenv("MONGO_USER")
-
-	if len(os.Getenv("MONGO_PASSWORD")) == 0 {
-		log.Fatal("MONGO_PASSWORD is a required env variable. Please define a database password string to use.")
-	}
-	dbPassword = os.Getenv("MONGO_PASSWORD")
-
-	s := new(storage)
-
-	dbConnection = "mongodb://" + dbUsername + ":" + dbPassword + "@" + dbHost + ":27017" + "/" + dbName + "?authSource=admin"
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
-			log.Fatalf("unable to disconnect client: %v", err)
+			panic(err)
 		}
 	}()
+	collection := client.Database("wizards").Collection("wizards")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	log.Printf("attempting to establish database connection: %s", dbConnection)
-
-	err = client.Connect(ctx)
+	_, err = collection.InsertOne(ctx, wz)
 	if err != nil {
-		log.Fatal("unable to connect to database: %s %v", dbConnection, err)
+		log.Printf("failed to insert document: %v", err)
 	}
-	s.db = client.Database(dbName)
-	s.c = client
-
-	log.Printf("database connection successfully established: %s", dbConnection)
-
-	return s, nil
+	return wz, err
 }
 
-func (s *server) List(ctx context.Context, in *pb.Wizard) (*pb.Wizard, error) {
-	if in.GetDeathEater() {
-		log.Printf("Wizard: %s is a DeathEater! Run!", in.GetName())
-		return in, nil
+func (s *server) List(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
+	if wz.GetDeathEater() {
+		log.Printf("Wizard: %s is a DeathEater! Run!", wz.GetName())
+		return wz, nil
 	}
-	log.Printf("%s is not a DeathEater! Phew...", in.GetName())
-	return in, nil
+	log.Printf("%s is not a DeathEater! Phew...", wz.GetName())
+	return wz, nil
 }

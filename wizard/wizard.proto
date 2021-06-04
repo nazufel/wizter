@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "/wizard";
+option go_package = "wizard";
 
 package wizard; 
 
@@ -13,4 +13,6 @@ message Wizard {
 
 service WizardService {
 	rpc List(Wizard) returns (Wizard) {}
+
+	rpc Add(Wizard) returns (Wizard) {}
 }
