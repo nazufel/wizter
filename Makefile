@@ -1,4 +1,10 @@
 
+devenv:
+	$(clean_command):
+	export MONGO_HOST=mongo.default.svc.cluster.local
+	export MONGO_USER=mongoadmin
+	export MONGO_PASSWORD=admin123
+	export MONGO_DATABASE=wizard
 
 wizard: 
 	$(clean_command)
