@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "/wizard";
+
+package wizard; 
+
+message Wizard {
+	int64 id = 1;
+	string name = 2;
+	string house = 3;
+	bool eater = 4;
+}
+
+service WizardService {
+	rpc List(Wizard) returns (Wizard) {}
+}
