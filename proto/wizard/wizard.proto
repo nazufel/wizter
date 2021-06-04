@@ -8,7 +8,7 @@ message Wizard {
 	int64 id = 1;
 	string name = 2;
 	string house = 3;
-	bool eater = 4;
+	bool deathEater = 4;
 }
 
 service WizardService {

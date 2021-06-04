@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/nazufel/telepresence-demo/wizard"
+	pb "github.com/nazufel/telepresence-demo/proto/wizard"
 
 	"google.golang.org/grpc"
 )
@@ -31,7 +31,7 @@ func main() {
 		Id:    1,
 		Name:  "Harry Potter",
 		House: "Gryffindor",
-		Eater: false,
+		DeathEater: true,
 	})
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
@@ -41,7 +41,7 @@ func main() {
 		Id:    r.GetId(),
 		Name:  r.GetName(),
 		House: r.GetHouse(),
-		Eater: r.GetEater(),
+		DeathEater: r.GetDeathEater(),
 	}
 
 	log.Printf("received from server: %s", &wizard)

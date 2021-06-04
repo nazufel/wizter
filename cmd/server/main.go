@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "../../wizard"
+	pb "github.com/nazufel/telepresence-demo/proto/wizard"
 
 	"google.golang.org/grpc"
 )
@@ -35,11 +35,10 @@ func main() {
 }
 
 func (s *server) List(ctx context.Context, in *pb.Wizard) (*pb.Wizard, error) {
-	log.Println("hit the list func")
-	if in.GetEater() {
+	if in.GetDeathEater() {
 		log.Printf("Wizard: %s is a DeathEater! Run!", in.GetName())
 		return in, nil
 	}
-	log.Printf("Wizard: %s is not a DeathEater! Phew...", in.GetName())
+	log.Printf("%s is not a DeathEater! Phew...", in.GetName())
 	return in, nil
 }
