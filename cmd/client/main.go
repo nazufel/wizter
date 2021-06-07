@@ -27,20 +27,10 @@ func main() {
 
 	defer cancel()
 
-	r, err := c.Add(ctx, &pb.Wizard{
-		Name:       "Harry Potter",
-		House:      "Gryffindor",
-		DeathEater: true,
-	})
+	r, err := c.List(ctx, &pb.EmptyRequest{})
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
 	}
 
-	wizard := pb.Wizard{
-		Name:       r.GetName(),
-		House:      r.GetHouse(),
-		DeathEater: r.GetDeathEater(),
-	}
-
-	log.Printf("received from server: %s", &wizard)
+	log.Printf("received from server: %s", r)
 }

@@ -24,16 +24,41 @@ type server struct {
 	pb.UnimplementedWizardServiceServer
 }
 
+type mongoStorage struct {
+	db *mongo.Database
+	c  *mongo.Client
+}
+
 func main() {
-	log.Println("starting wizards server...")
+	log.Println("starting wizards server")
 	log.Println("trying to connect to database")
 
-	err := storageConnect()
+	ms := new(mongoStorage)
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	err = client.Connect(ctx)
+	defer func() {
+		err = client.Disconnect(ctx)
+		if err != nil {
+			log.Fatalf("failed to disconnect client:  %v", err)
+		}
+	}()
+
+	// test connection
+	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		log.Fatalf("failed to connect to storage: %v", err)
+		log.Fatalf("error pinging DB: %v", err)
 	}
 
-	err = seedData()
+	ms.db = client.Database("wizards")
+	ms.c = client
+	log.Printf("connected to the database")
+
+	log.Println("dropping the wizards collection")
+	err = ms.seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
 	}
@@ -53,44 +78,17 @@ func main() {
 	}
 }
 
-var wizardCollection *mongo.Collection
-
-func storageConnect() error {
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatalf("error pinging DB: %v", err)
-	}
-
-	wizardCollection := client.Database("wizards").Collection("wizards")
-
-	log.Printf("connected to collection: %v", wizardCollection)
-
-	return err
-}
-
 type WizardRecord struct {
 	Name       string `bson:"name"`
 	House      string `bson:"house"`
 	DeathEater bool   `bson:"death_eater"`
 }
 
-func seedData() error {
+// seedData drops the wizards collection and seeds it with fresh data to the demo
+func (m *mongoStorage) seedData() error {
 
-	log.Println("dropping the wizards collection")
-
-	// drop the collection in order to see fresh data for a new run
-	err := wizardCollection.Drop(context.Background())
+	// // drop the collection in order to see fresh data for a new run
+	err := m.db.Collection("wizards").Drop(context.Background())
 	if err != nil {
 		log.Fatal("unable drop the wizard collection")
 	}
@@ -124,11 +122,12 @@ func seedData() error {
 	defer cancel()
 
 	for i := range wizards {
-		_, err = wizardCollection.InsertOne(ctx, wizards[i])
+		_, err = m.db.Collection("wizards").InsertOne(ctx, wizards[i])
 		if err != nil {
-			log.Printf("failed to insert document: %v", err)
+			log.Fatalf("failed to insert document: %v", err)
 		}
-		log.Printf("inserted document for wizard: %s", wizards[1].Name)
+		log.Printf("inserted document for wizard: %s", wizards[i].Name)
+		i++
 	}
 
 	log.Printf("finished seeding the database")
