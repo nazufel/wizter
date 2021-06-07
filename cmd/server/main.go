@@ -21,7 +21,7 @@ const (
 var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":27017" + "/" + os.Getenv("MONGO_DATABASE")
 
 type server struct {
-	pb.UnimplementedWizardServiceServer
+	pb.WizardServiceServer
 }
 
 type mongoStorage struct {
@@ -76,6 +76,34 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to start the grpc server: %s", err)
 	}
+}
+
+func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
+
+	var err error
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	collection := client.Database("wizards").Collection("wizards")
+
+	log.Printf("collection: %v", collection)
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatalf("error pinging DB: %v", err)
+	}
+
+	return nil
+
 }
 
 type WizardRecord struct {
@@ -135,29 +163,3 @@ func (m *mongoStorage) seedData() error {
 
 	return err
 }
-
-// func (s *server) List(ctx context.Context, e *pb.EmptyRequest) *pb.WizardService_ListServer {
-
-// 	var err error
-
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
-
-// 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
-// 	defer func() {
-// 		if err = client.Disconnect(ctx); err != nil {
-// 			panic(err)
-// 		}
-// 	}()
-// 	collection := client.Database("wizards").Collection("wizards")
-
-// 	log.Printf("collection: %v", collection)
-// 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	err = client.Ping(ctx, readpref.Primary())
-// 	if err != nil {
-// 		log.Fatalf("error pinging DB: %v", err)
-// 	}
-// 	return nil
-// }

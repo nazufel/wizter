@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
@@ -24,13 +25,29 @@ func main() {
 	c := pb.NewWizardServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-
 	defer cancel()
 
-	r, err := c.List(ctx, &pb.EmptyRequest{})
+	stream, err := c.List(ctx, &pb.EmptyRequest{})
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
 	}
 
-	log.Printf("received from server: %s", r)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			resp, err := stream.Recv()
+			if err == io.EOF {
+				done <- true
+				return
+			}
+			if err != nil {
+				log.Fatalf("cannot receive stream: %v", err)
+			}
+			log.Printf("Wizard received: %v", resp.GetName())
+		}
+	}()
+
+	<-done
+	log.Printf("client finished")
 }
