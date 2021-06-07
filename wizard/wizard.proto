@@ -10,8 +10,8 @@ message Wizard {
 	bool deathEater = 3;
 }
 
-service WizardService {
-	rpc List(Wizard) returns (Wizard) {}
+message EmptyRequest {}
 
-	rpc Add(Wizard) returns (Wizard) {}
+service WizardService {
+	rpc List(EmptyRequest) returns (stream Wizard) {}
 }

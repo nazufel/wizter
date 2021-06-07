@@ -8,7 +8,6 @@ import (
 	"time"
 
 	pb "github.com/nazufel/telepresence-demo/wizard"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -22,6 +21,8 @@ const (
 var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":27017" + "/" + os.Getenv("MONGO_DATABASE")
 
 type server struct {
+	mc *mongo.Collection
+
 	pb.UnimplementedWizardServiceServer
 }
 
@@ -44,17 +45,7 @@ func main() {
 	}
 }
 
-type WizardRecord struct {
-	Name       string `bson:"name"`
-	House      string `bson:"house"`
-	DeathEater bool   `bson:"death_eater"`
-}
-
-func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
-
-	log.Printf("receved wizard: %s", wz)
-
-	var err error
+func (s *server) storageConnect() *mongo.Collection {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -65,9 +56,7 @@ func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 			panic(err)
 		}
 	}()
-	collection := client.Database("wizards").Collection("wizards")
 
-	log.Printf("collection: %v", collection)
 	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -76,28 +65,70 @@ func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 		log.Fatalf("error pinging DB: %v", err)
 	}
 
-	_, err = collection.InsertOne(ctx, wz)
-	if err != nil {
-		log.Printf("failed to insert document: %v", err)
-	}
+	collection := client.Database("wizards").Collection("wizards")
 
-	wizardrecord := WizardRecord{}
-
-	filter := bson.D{{Key: "name", Value: wz.GetName()}}
-	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	err = collection.FindOne(ctx, filter).Decode(&wizardrecord)
-
-	response := &pb.Wizard{
-		Name:       wizardrecord.Name,
-		House:      wizardrecord.House,
-		DeathEater: wizardrecord.DeathEater,
-	}
-
-	return response, err
+	return collection
 }
 
-func (s *server) List(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
+type WizardRecord struct {
+	Name       string `bson:"name"`
+	House      string `bson:"house"`
+	DeathEater bool   `bson:"death_eater"`
+}
+
+func (s *server) seedData() error {
+
+	log.Println("dropping the wizards collection")
+
+	// drop the collection in order to see fresh data for a new run
+	err := s.mc.Drop(context.Background())
+	if err != nil {
+		log.Fatal("unable drop the wizard collection")
+	}
+
+	// seed the database
+
+	wizards := []WizardRecord{
+		{Name: "Harry Potter",
+			House:      "Gryffindor",
+			DeathEater: false,
+		},
+		{Name: "Ron Weasley",
+			House:      "Gryffindor",
+			DeathEater: false,
+		},
+		{Name: "Hermione Granger",
+			House:      "Gryffindor",
+			DeathEater: false,
+		},
+		{Name: "Draco Malfoy",
+			House:      "Slytherin",
+			DeathEater: true,
+		},
+		{Name: "Cho Chang",
+			House:      "Raven Claw",
+			DeathEater: false,
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	for i := range wizards {
+		_, err = s.mc.InsertOne(ctx, wizards[i])
+		if err != nil {
+			log.Printf("failed to insert document: %v", err)
+		}
+		log.Printf("inserted document for wizard: %s", wizards[1].Name)
+	}
+
+	log.Printf("finished seeding the database")
+	log.Printf("inserted %v documents", len(wizards))
+
+	return err
+}
+
+func (s *server) List(ctx context.Context, e *pb.EmptyRequest) *pb.WizardService_ListServer {
 
 	var err error
 
@@ -120,5 +151,5 @@ func (s *server) List(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 	if err != nil {
 		log.Fatalf("error pinging DB: %v", err)
 	}
-	return wz, nil
+	return nil
 }
