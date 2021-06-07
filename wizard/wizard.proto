@@ -12,6 +12,6 @@ message Wizard {
 
 message EmptyRequest {}
 
-service WizardService {
-	rpc List(EmptyRequest) returns (stream Wizard) {}
-}
+// service WizardService {
+// 	rpc List(EmptyRequest) returns (stream Wizard) {}
+// }
