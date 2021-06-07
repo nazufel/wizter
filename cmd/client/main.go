@@ -37,7 +37,6 @@ func main() {
 	}
 
 	wizard := pb.Wizard{
-		Id:         r.GetId(),
 		Name:       r.GetName(),
 		House:      r.GetHouse(),
 		DeathEater: r.GetDeathEater(),

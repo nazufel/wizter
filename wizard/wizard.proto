@@ -1,14 +1,13 @@
 syntax = "proto3";
 
-option go_package = "wizard";
+option go_package = "wizard/wizard";
 
 package wizard; 
 
 message Wizard {
-	int64 id = 1;
-	string name = 2;
-	string house = 3;
-	bool deathEater = 4;
+	string name = 1;
+	string house = 2;
+	bool deathEater = 3;
 }
 
 service WizardService {

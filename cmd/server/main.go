@@ -8,7 +8,7 @@ import (
 	"time"
 
 	pb "github.com/nazufel/telepresence-demo/wizard"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -45,15 +45,12 @@ func main() {
 }
 
 type WizardRecord struct {
-	Id         primitive.ObjectID `bson:"_id,omitempty"`
-	Name       string             `bson:"name"`
-	House      string             `bson:"house"`
-	DeathEater bool               `bson:"death_eater"`
+	Name       string `bson:"name"`
+	House      string `bson:"house"`
+	DeathEater bool   `bson:"death_eater"`
 }
 
 func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
-
-	// wiz := wz.ProtoReflect().Descriptor()
 
 	log.Printf("receved wizard: %s", wz)
 
@@ -62,10 +59,51 @@ func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// credential := options.Credential{
-	// 	Username: os.Getenv("MONGO_USER"),
-	// 	Password: os.Getenv("MONGO_PASSWORD"),
-	// }
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	collection := client.Database("wizards").Collection("wizards")
+
+	log.Printf("collection: %v", collection)
+	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatalf("error pinging DB: %v", err)
+	}
+
+	_, err = collection.InsertOne(ctx, wz)
+	if err != nil {
+		log.Printf("failed to insert document: %v", err)
+	}
+
+	wizardrecord := WizardRecord{}
+
+	filter := bson.D{{Key: "name", Value: wz.GetName()}}
+	ctx, cancel = context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	err = collection.FindOne(ctx, filter).Decode(&wizardrecord)
+
+	response := &pb.Wizard{
+		Name:       wizardrecord.Name,
+		House:      wizardrecord.House,
+		DeathEater: wizardrecord.DeathEater,
+	}
+
+	return response, err
+}
+
+func (s *server) List(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
+
+	var err error
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbConnection))
 	defer func() {
 		if err = client.Disconnect(ctx); err != nil {
@@ -82,19 +120,5 @@ func (s *server) Add(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
 	if err != nil {
 		log.Fatalf("error pinging DB: %v", err)
 	}
-
-	_, err = collection.InsertOne(ctx, wz)
-	if err != nil {
-		log.Printf("failed to insert document: %v", err)
-	}
-	return wz, err
-}
-
-func (s *server) List(ctx context.Context, wz *pb.Wizard) (*pb.Wizard, error) {
-	if wz.GetDeathEater() {
-		log.Printf("Wizard: %s is a DeathEater! Run!", wz.GetName())
-		return wz, nil
-	}
-	log.Printf("%s is not a DeathEater! Phew...", wz.GetName())
 	return wz, nil
 }
