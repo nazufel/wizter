@@ -82,7 +82,14 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 
 	db := client.Database("wizards")
 
-	cursor, err := db.Collection("Wizards").Find(ctx, bson.M{})
+	// set find options behavior
+	findOptions := options.Find()
+	// findOptions.SetLimit(25)
+
+	// filter by company, this is the default behavior
+	filter := bson.D{{}}
+
+	cursor, err := db.Collection("wizards").Find(ctx, filter, findOptions)
 	if err != nil {
 		log.Printf("failed to get wizards: %v", err)
 	}
