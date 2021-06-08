@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/enescakir/emoji"
 	pb "github.com/nazufel/telepresence-demo/wizard"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -103,11 +104,21 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 			log.Printf("unable to decode wizard cursor into struct: %v", err)
 		}
 
+		switch house := wizard.House; house {
+		case "Gryffindor":
+			log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
+		case "Ravenclaw":
+			log.Printf("%v - sending wizard to client: %v", emoji.Cactus, wizard.GetName())
+		case "Hufflepuff":
+			log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
+		case "Slytherin":
+			log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
+		}
+
 		err = srv.Send(&wizard)
 		if err != nil {
 			log.Printf("send error: %v", err)
 		}
-		log.Printf("sent wizard to client: %v", wizard.GetName())
 	}
 
 	err = cursor.Err()
