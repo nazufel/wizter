@@ -16,6 +16,22 @@ const (
 )
 
 func main() {
+
+	for {
+		time.Sleep(1 * time.Second)
+		log.Println("# -------------------------------------- #")
+		log.Println("requesting list of wizards from the server")
+		log.Println("# -------------------------------------- #")
+
+		clientCall()
+		log.Println("# -------------------------------------- #")
+		log.Println("requesting list of wizards from the server")
+		log.Println("# -------------------------------------- #")
+	}
+}
+
+func clientCall() {
+
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -31,8 +47,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
 	}
-
-	log.Println("requesting list of wizards from the server")
 
 	for {
 		resp, err := stream.Recv()

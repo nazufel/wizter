@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/enescakir/emoji"
 	pb "github.com/nazufel/telepresence-demo/wizard"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -45,7 +44,9 @@ func main() {
 
 	pb.RegisterWizardServiceServer(grpcServer, &server{})
 
+	log.Println("# ----------------------------------- #")
 	log.Printf("running grpc server on port: %v", grpcPort)
+	log.Println("# ----------------------------------- #")
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to start the grpc server: %s", err)
@@ -60,7 +61,9 @@ type WizardRecord struct {
 
 func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
 
+	log.Println("# -------------------------------------- #")
 	log.Println("sending list of wizards to client")
+	log.Println("# -------------------------------------- #")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
 
@@ -104,16 +107,22 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 			log.Printf("unable to decode wizard cursor into struct: %v", err)
 		}
 
-		switch house := wizard.House; house {
-		case "Gryffindor":
-			log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
-		case "Ravenclaw":
-			log.Printf("%v - sending wizard to client: %v", emoji.Cactus, wizard.GetName())
-		case "Hufflepuff":
-			log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
-		case "Slytherin":
-			log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
-		}
+		// Commenting out. Uncomment when making the server change in the demo
+		/*
+			switch house := wizard.House; house {
+			case "Gryffindor":
+				log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
+			case "Ravenclaw":
+				log.Printf("%v - sending wizard to client: %v", emoji.Bird, wizard.GetName())
+			case "Hufflepuff":
+				log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
+			case "Slytherin":
+				log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
+			}
+		*/
+
+		// comment this log statement as part of the server demo
+		log.Printf("sending wizard to client: %v", wizard.GetName())
 
 		err = srv.Send(&wizard)
 		if err != nil {
@@ -125,6 +134,10 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	if err != nil {
 		log.Printf("error with the client cursor: %v", err)
 	}
+
+	log.Println("# -------------------------------------- #")
+	log.Println("done sending list of wizards to client")
+	log.Println("# -------------------------------------- #")
 
 	return nil
 
