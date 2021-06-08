@@ -1,3 +1,6 @@
+client:
+	$(clean_command)
+	docker build -f cmd/client/Dockerfile -t nazufel/telepresence-demo-client:v1 .
 
 devenv:
 	$(clean_command):
@@ -5,6 +8,10 @@ devenv:
 	export MONGO_USER=mongoadmin
 	export MONGO_PASSWORD=admin123
 	export MONGO_DATABASE=wizard
+
+server:
+	$(clean_command)
+	docker build -f cmd/server/Dockerfile -t nazufel/telepresence-demo-server:v1 .a
 
 wizard: 
 	$(clean_command)

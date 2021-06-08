@@ -15,11 +15,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	grpcPort = ":9999"
+var (
+	dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
+	grpcPort     = os.Getenv("GRPC_PORT")
 )
-
-var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":27017" + "/" + os.Getenv("MONGO_DATABASE")
 
 type server struct {
 	pb.WizardServiceServer
@@ -35,7 +34,7 @@ func main() {
 	}
 	log.Printf("finished seeding the database")
 
-	lis, err := net.Listen("tcp", grpcPort)
+	lis, err := net.Listen("tcp", ":"+grpcPort)
 	if err != nil {
 		log.Fatalf("could not listen: %v", err)
 	}
@@ -51,12 +50,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to start the grpc server: %s", err)
 	}
-}
-
-type WizardRecord struct {
-	Name       string `bson:"name"`
-	House      string `bson:"house"`
-	DeathEater bool   `bson:"death_eater"`
 }
 
 func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
@@ -143,6 +136,12 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 
 }
 
+// type WizardRecord struct {
+// 	Name       string `bson:"name"`
+// 	House      string `bson:"house"`
+// 	DeathEater bool   `bson:"death_eater"`
+// }
+
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
 
@@ -175,7 +174,7 @@ func seedData() error {
 
 	// seed the database
 
-	wizards := []WizardRecord{
+	wizards := []pb.Wizard{
 		{Name: "Harry Potter",
 			House:      "Gryffindor",
 			DeathEater: false,

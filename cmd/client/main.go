@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/nazufel/telepresence-demo/wizard"
@@ -11,11 +12,11 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	address = "localhost:9999"
-)
+var address = os.Getenv("SERVER_HOST") + ":" + os.Getenv("GRPC_PORT")
 
 func main() {
+
+	log.Printf("connection address: %s", address)
 
 	for {
 		time.Sleep(1 * time.Second)
@@ -24,9 +25,9 @@ func main() {
 		log.Println("# -------------------------------------- #")
 
 		clientCall()
-		log.Println("# -------------------------------------- #")
-		log.Println("requesting list of wizards from the server")
-		log.Println("# -------------------------------------- #")
+		log.Println("# --------------------------------------#")
+		log.Println("received list of wizards from the server")
+		log.Println("# ------------------------------------- #")
 	}
 }
 
