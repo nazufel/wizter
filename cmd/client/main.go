@@ -32,22 +32,16 @@ func main() {
 		log.Fatalf("could not send message: %v", err)
 	}
 
-	done := make(chan bool)
+	log.Println("requesting list of wizards from the server")
 
-	go func() {
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				done <- true
-				return
-			}
-			if err != nil {
-				log.Fatalf("cannot receive stream: %v", err)
-			}
-			log.Printf("Wizard received: %v", resp.GetName())
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return
 		}
-	}()
-
-	<-done
-	log.Printf("client finished")
+		if err != nil {
+			log.Fatalf("cannot receive stream: %v", err)
+		}
+		log.Printf("wizard received: %v", resp.GetName())
+	}
 }
