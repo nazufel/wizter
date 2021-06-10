@@ -1,6 +1,6 @@
 client:
 	$(clean_command)
-	docker build -f cmd/client/Dockerfile -t nazufel/telepresence-demo-client:v1 .
+	docker build -f cmd/client/Dockerfile -t ryanthebossross/wizards-client:v1 .
 
 devenv:
 	$(clean_command):
@@ -9,9 +9,17 @@ devenv:
 	export MONGO_PASSWORD=admin123
 	export MONGO_DATABASE=wizard
 
+push-client:
+	$(clean_command):
+	docker push ryanthebossross/wizards-client:v1
+
+push-server:
+	$(clean_command):
+	docker push ryanthebossross/wizards-server:v2
+
 server:
 	$(clean_command)
-	docker build -f cmd/server/Dockerfile -t nazufel/telepresence-demo-server:v1 .a
+	docker build -f cmd/server/Dockerfile -t ryanthebossross/wizards-server:v2 .
 
 wizard: 
 	$(clean_command)

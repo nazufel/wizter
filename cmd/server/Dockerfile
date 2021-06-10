@@ -9,8 +9,9 @@ FROM golang:1.16.5-alpine as builder
 RUN apk add protobuf
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 # set the
-WORKDIR /src
+WORKDIR /go/src
 ADD ./cmd/server/main.go .
 ADD ./wizard/ ./wizard/
 ADD ./go.mod .
@@ -22,13 +23,21 @@ RUN protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_o
 RUN go build -o server main.go
 
 # final phase: copy binary to scratch container
-FROM scratch
+# FROM ubuntu
+# ENV MONGO_HOST "mongo.default.svc.cluster.local" 
+# ENV MONGO_DATABASE "wizard" 
+# ENV MONGO_PORT "27017" 
+# ENV GRPC_PORT "9999"
 
 ## set the working directory
-WORKDIR /go/bin/server
+# WORKDIR /go/bin/server
 
 ## copy the combiled binary to the smaller image
-COPY --from=builder /src/server .
+# COPY --from=builder /go/src/server .
+
+# RUN cp /go/src/server /go/bin/server
 
 ## start the binary when the container starts
-ENTRYPOINT ["./server"]
+# ENTRYPOINT ["./server"]
+
+CMD [ "/bin/ash", "-c", "sleep 111111111" ]

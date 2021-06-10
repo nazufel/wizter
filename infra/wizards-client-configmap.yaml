@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wizards-client
+  namespace: default
+  labels:
+    name: wizards-client
+data:
+  GRPC_PORT: "9999"
+  SERVER_HOST: "wizards-server"

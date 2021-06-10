@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wizards-server
+  labels:
+    name: wizards-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: wizards-server
+  template:
+    metadata:
+      labels:
+        name: wizards-server
+    spec:
+      containers:
+        - name: wizards-server
+          image: ryanthebossross/wizards-server:v2
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 9999
+          env:
+            - name: "GRPC_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: "wizards-server"
+                  key: "GRPC_PORT"
+            - name: "MONGO_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  name: "wizards-server"
+                  key: "MONGO_HOST"
+            - name: "MONGO_DATABASE"
+              valueFrom:
+                configMapKeyRef:
+                  name: "wizards-server"
+                  key: "MONGO_DATABASE"
+            - name: "MONGO_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: "wizards-server"
+                  key: "MONGO_PORT"
