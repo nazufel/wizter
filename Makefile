@@ -1,25 +1,21 @@
 client:
 	$(clean_command)
-	docker build -f cmd/client/Dockerfile -t ryanthebossross/wizards-client:v1 .
+	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .
 
 devenv:
 	$(clean_command):
-	export MONGO_HOST=mongo.default.svc.cluster.local
-	export MONGO_USER=mongoadmin
-	export MONGO_PASSWORD=admin123
-	export MONGO_DATABASE=wizard
 
-push-client:
+load-client:
 	$(clean_command):
-	docker push ryanthebossross/wizards-client:v1
+	kind load docker-image wizards-client:v1
 
-push-server:
+load-server:
 	$(clean_command):
-	docker push ryanthebossross/wizards-server:v1
+	kind load docker-image wizards-server:v1
 
 server:
 	$(clean_command)
-	docker build -f cmd/server/Dockerfile -t ryanthebossross/wizards-server:v1 .
+	docker build -f cmd/server/Dockerfile -t wizards-server:v1 .
 
 wizard: 
 	$(clean_command)

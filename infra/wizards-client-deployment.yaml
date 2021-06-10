@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: wizards-client
-          image: ryanthebossross/wizards-client:v1
+          image: wizards-client:v1
           imagePullPolicy: "IfNotPresent"
           envFrom:
             - configMapRef:
