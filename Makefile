@@ -2,8 +2,9 @@ client:
 	$(clean_command)
 	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .
 
-devenv:
-	$(clean_command):
+images: client server
+
+load: load-client load-server
 
 load-client:
 	$(clean_command):
@@ -17,6 +18,6 @@ server:
 	$(clean_command)
 	docker build -f cmd/server/Dockerfile -t wizards-server:v1 .
 
-wizard: 
+proto: 
 	$(clean_command)
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative wizard/wizard.proto

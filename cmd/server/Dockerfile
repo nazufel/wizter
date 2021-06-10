@@ -29,7 +29,7 @@ ENV GOOS=linux
 RUN go build -a -installsuffix cgo -o server .
 
 # final phase: copy the built binary into a scratch image to run
-FROM scratch
+FROM alpine
 
 ## set the working directory
 WORKDIR /go/bin/wizards

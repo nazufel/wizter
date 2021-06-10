@@ -16,28 +16,23 @@ spec:
     spec:
       containers:
         - name: wizards-server
-          image: ryanthebossross/wizards-server:v1
+          image: wizards-server:v1
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 9999
           env:
-            - name: "GRPC_PORT"
+            - name: "WIZARDS_SERVER_GRPC_PORT"
               valueFrom:
                 configMapKeyRef:
-                  name: "wizards-server"
-                  key: "GRPC_PORT"
-            - name: "MONGO_HOST"
-              valueFrom:
-                configMapKeyRef:
-                  name: "wizards-server"
-                  key: "MONGO_HOST"
+                  name: "wizards-server-configmap"
+                  key: "WIZARDS_SERVER_GRPC_PORT"
             - name: "MONGO_DATABASE"
               valueFrom:
                 configMapKeyRef:
-                  name: "wizards-server"
+                  name: "wizards-server-configmap"
                   key: "MONGO_DATABASE"
-            - name: "MONGO_PORT"
+            - name: "MONGO_HOST"
               valueFrom:
                 configMapKeyRef:
-                  name: "wizards-server"
-                  key: "MONGO_PORT"
+                  name: "wizards-server-configmap"
+                  key: "MONGO_HOST"

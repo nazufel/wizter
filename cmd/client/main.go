@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	pb "github.com/nazufel/telepresence-demo/wizard"
@@ -12,10 +14,37 @@ import (
 	"google.golang.org/grpc"
 )
 
-var address = os.Getenv("SERVER_HOST") + ":" + os.Getenv("GRPC_PORT")
+var address string
+
+const configMapFile = "./wizards-server-configMap.txt"
 
 func main() {
+	// set envs for local dev if the intercept env file exists
+	log.Printf("checking for configMap file at: %v", configMapFile)
+	_, err := os.Stat(configMapFile)
+	if !os.IsNotExist(err) {
+		log.Printf("found %s file. setting environment variables", configMapFile)
 
+		file, err := os.Open(configMapFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			// fmt.Println(scanner.Text())
+			s := strings.Split(scanner.Text(), "=")
+			os.Setenv(s[0], s[1])
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+		log.Println("done setting environemnt variables")
+	}
+
+	var address = os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
 	log.Printf("connection address: %s", address)
 
 	for {

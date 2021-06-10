@@ -17,10 +17,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	dbConnection string
-	grpcPort     string
-)
+const configMapFile = "./wizards-server-configMap.txt"
 
 type server struct {
 	pb.WizardServiceServer
@@ -29,51 +26,35 @@ type server struct {
 func main() {
 	log.Println("starting wizards server")
 
+	// set envs for local dev if the intercept env file exists
 	log.Printf("checking for configMap file at: %v", configMapFile)
-	if _, err := os.Stat(configMapFile); os.IsExist(err) {
+	_, err := os.Stat(configMapFile)
+	if !os.IsNotExist(err) {
 		log.Printf("found %s file. setting environment variables", configMapFile)
 
+		file, err := os.Open(configMapFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			// fmt.Println(scanner.Text())
+			s := strings.Split(scanner.Text(), "=")
+			os.Setenv(s[0], s[1])
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+		log.Println("done setting environemnt variables")
+	}
+	if os.IsNotExist(err) {
+		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
 	}
 
-	log.Println("reading configMap file to set environment variables")
-	file, err := os.Open(configMapFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		s := strings.Split(scanner.Text(), "=")
-		os.Setenv(s[0], s[1])
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("done setting environemnt variables")
-
-	var address = os.Getenv("SERVER_HOST") + ":" + os.Getenv("GRPC_PORT")
-	var grpcPort = os.Getenv("GRPC_PORT")
-
-	file, err := os.Open("./wizard-server-configmap.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		s := strings.Split(scanner.Text(), "=")
-		os.Setenv(s[0], s[1])
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	log.Printf("printing MONGO_HOST: %v", os.Getenv("MONGO_HOST"))
 
 	log.Println("dropping the wizards collection and seeding database")
 
@@ -83,7 +64,7 @@ func main() {
 	}
 	log.Printf("finished seeding the database")
 
-	lis, err := net.Listen("tcp", ":"+grpcPort)
+	lis, err := net.Listen("tcp", ":"+os.Getenv("WIZARDS_SERVER_GRPC_PORT"))
 	if err != nil {
 		log.Fatalf("could not listen: %v", err)
 	}
@@ -93,7 +74,7 @@ func main() {
 	pb.RegisterWizardServiceServer(grpcServer, &server{})
 
 	log.Println("# ----------------------------------- #")
-	log.Printf("running grpc server on port: %v", grpcPort)
+	log.Printf("running grpc server on port: %v", os.Getenv("WIZARDS_SERVER_GRPC_PORT"))
 	log.Println("# ----------------------------------- #")
 	err = grpcServer.Serve(lis)
 	if err != nil {
@@ -107,9 +88,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -190,9 +171,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
 
-	var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

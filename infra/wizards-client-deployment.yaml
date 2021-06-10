@@ -18,6 +18,9 @@ spec:
         - name: wizards-client
           image: wizards-client:v1
           imagePullPolicy: "IfNotPresent"
-          envFrom:
-            - configMapRef:
-                name: wizards-client
+          env:
+            - name: "WIZARDS_SERVER_GRPC_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: "wizards-client-configmap"
+                  key: "WIZARDS_SERVER_GRPC_PORT"

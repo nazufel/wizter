@@ -6,7 +6,8 @@ metadata:
     name: wizards-server
 spec:
   ports:
-  - port: 9999
+  - name: grpc
+    port: 9999
     targetPort: 9999
   selector:
     name: wizards-server
