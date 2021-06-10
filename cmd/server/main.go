@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	pb "github.com/nazufel/telepresence-demo/wizard"
@@ -16,8 +18,8 @@ import (
 )
 
 var (
-	dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
-	grpcPort     = os.Getenv("GRPC_PORT")
+	dbConnection string
+	grpcPort     string
 )
 
 type server struct {
@@ -27,8 +29,55 @@ type server struct {
 func main() {
 	log.Println("starting wizards server")
 
+	log.Printf("checking for configMap file at: %v", configMapFile)
+	if _, err := os.Stat(configMapFile); os.IsExist(err) {
+		log.Printf("found %s file. setting environment variables", configMapFile)
+
+	}
+
+	log.Println("reading configMap file to set environment variables")
+	file, err := os.Open(configMapFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		// fmt.Println(scanner.Text())
+		s := strings.Split(scanner.Text(), "=")
+		os.Setenv(s[0], s[1])
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("done setting environemnt variables")
+
+	var address = os.Getenv("SERVER_HOST") + ":" + os.Getenv("GRPC_PORT")
+	var grpcPort = os.Getenv("GRPC_PORT")
+
+	file, err := os.Open("./wizard-server-configmap.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		// fmt.Println(scanner.Text())
+		s := strings.Split(scanner.Text(), "=")
+		os.Setenv(s[0], s[1])
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
 	log.Println("dropping the wizards collection and seeding database")
-	err := seedData()
+
+	err = seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
 	}
@@ -57,6 +106,8 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("# -------------------------------------- #")
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
+
+	var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
 
@@ -136,14 +187,10 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 
 }
 
-// type WizardRecord struct {
-// 	Name       string `bson:"name"`
-// 	House      string `bson:"house"`
-// 	DeathEater bool   `bson:"death_eater"`
-// }
-
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
+
+	var dbConnection = "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnection))
 
