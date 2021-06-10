@@ -15,11 +15,11 @@ push-client:
 
 push-server:
 	$(clean_command):
-	docker push ryanthebossross/wizards-server:v2
+	docker push ryanthebossross/wizards-server:v1
 
 server:
 	$(clean_command)
-	docker build -f cmd/server/Dockerfile -t ryanthebossross/wizards-server:v2 .
+	docker build -f cmd/server/Dockerfile -t ryanthebossross/wizards-server:v1 .
 
 wizard: 
 	$(clean_command)

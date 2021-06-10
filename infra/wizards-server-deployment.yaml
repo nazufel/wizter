@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: wizards-server
-          image: ryanthebossross/wizards-server:v2
+          image: ryanthebossross/wizards-server:v1
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 9999
