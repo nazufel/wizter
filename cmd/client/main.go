@@ -58,5 +58,18 @@ func clientCall() {
 			log.Fatalf("cannot receive stream: %v", err)
 		}
 		log.Printf("wizard received: %v", resp.GetName())
+
+		// commenting out for the demo. uncomment during demo of the client
+		// if resp.GetDeathEater() {
+		// 	wizardName := resp.Name
+		// 	alertDeathEather(wizardName)
+		// }
 	}
 }
+
+// commenting out for the demo. uncomment during demo of the client
+// func alertDeathEather(n string) {
+// 	log.Println("")
+// 	log.Printf("Oh no! %s is a Death Eater!", n)
+// 	log.Println("")
+// }
