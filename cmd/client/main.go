@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-var address string
-
 const configMapFile = "./wizards-server-configMap.txt"
 
 func main() {
@@ -44,9 +42,6 @@ func main() {
 		log.Println("done setting environemnt variables")
 	}
 
-	var address = os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
-	log.Printf("connection address: %s", address)
-
 	for {
 		time.Sleep(1 * time.Second)
 		log.Println("# -------------------------------------- #")
@@ -61,6 +56,9 @@ func main() {
 }
 
 func clientCall() {
+
+	address := "localhost" + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
+	log.Printf("connection address: %s", address)
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
