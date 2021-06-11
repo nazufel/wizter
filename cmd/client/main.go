@@ -57,7 +57,7 @@ func main() {
 
 func clientCall() {
 
-	address := "localhost" + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
+	address := os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
 	log.Printf("connection address: %s", address)
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
