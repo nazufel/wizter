@@ -31,24 +31,7 @@ func main() {
 	_, err := os.Stat(configMapFile)
 	if !os.IsNotExist(err) {
 		log.Printf("found %s file. setting environment variables", configMapFile)
-
-		file, err := os.Open(configMapFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			// fmt.Println(scanner.Text())
-			s := strings.Split(scanner.Text(), "=")
-			os.Setenv(s[0], s[1])
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-		log.Println("done setting environemnt variables")
+		loadConfigs()
 	}
 	if os.IsNotExist(err) {
 		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
@@ -163,6 +146,28 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("# -------------------------------------- #")
 
 	return nil
+
+}
+
+func loadConfigs() {
+
+	file, err := os.Open(configMapFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		// fmt.Println(scanner.Text())
+		s := strings.Split(scanner.Text(), "=")
+		os.Setenv(s[0], s[1])
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("done setting environemnt variables")
 
 }
 

@@ -22,24 +22,10 @@ func main() {
 	_, err := os.Stat(configMapFile)
 	if !os.IsNotExist(err) {
 		log.Printf("found %s file. setting environment variables", configMapFile)
-
-		file, err := os.Open(configMapFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			// fmt.Println(scanner.Text())
-			s := strings.Split(scanner.Text(), "=")
-			os.Setenv(s[0], s[1])
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-		log.Println("done setting environemnt variables")
+		loadConfigs()
+	}
+	if os.IsNotExist(err) {
+		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
 	}
 
 	for {
@@ -86,16 +72,37 @@ func clientCall() {
 		log.Printf("wizard received: %v", resp.GetName())
 
 		// commenting out for the demo. uncomment during demo of the client
-		// if resp.GetDeathEater() {
-		// 	wizardName := resp.Name
-		// 	alertDeathEather(wizardName)
-		// }
+		if resp.GetDeathEater() {
+			alertDeathEather(resp)
+		}
 	}
 }
 
 // commenting out for the demo. uncomment during demo of the client
-// func alertDeathEather(n string) {
-// 	log.Println("")
-// 	log.Printf("Oh no! %s is a Death Eater!", n)
-// 	log.Println("")
-// }
+func alertDeathEather(w *pb.Wizard) {
+	log.Println("")
+	log.Printf("Oh no! %s is a Death Eater!", w.GetName())
+	log.Println("")
+}
+
+func loadConfigs() {
+
+	file, err := os.Open(configMapFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		// fmt.Println(scanner.Text())
+		s := strings.Split(scanner.Text(), "=")
+		os.Setenv(s[0], s[1])
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("done setting environemnt variables")
+
+}
