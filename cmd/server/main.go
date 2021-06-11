@@ -135,18 +135,16 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 		}
 
 		// Commenting out. Uncomment when making the server change in the demo
-		/*
-			switch house := wizard.House; house {
-			case "Gryffindor":
-				log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
-			case "Ravenclaw":
-				log.Printf("%v - sending wizard to client: %v", emoji.Bird, wizard.GetName())
-			case "Hufflepuff":
-				log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
-			case "Slytherin":
-				log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
-			}
-		*/
+		// switch house := wizard.House; house {
+		// case "Gryffindor":
+		// 	log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
+		// case "Ravenclaw":
+		// 	log.Printf("%v - sending wizard to client: %v", emoji.Bird, wizard.GetName())
+		// case "Hufflepuff":
+		// 	log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
+		// case "Slytherin":
+		// 	log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
+		// }
 
 		// comment this log statement as part of the server demo
 		log.Printf("sending wizard to client: %v", wizard.GetName())
