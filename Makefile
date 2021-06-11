@@ -1,3 +1,5 @@
+all: images load 
+
 client:
 	$(clean_command)
 	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .

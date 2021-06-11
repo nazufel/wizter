@@ -90,8 +90,6 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 
 	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
 
-	log.Printf("list db connection string: %s", dbConnectionString)
-
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -172,8 +170,6 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 func seedData() error {
 
 	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
-
-	log.Printf("seed db connection string: %s", dbConnectionString)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
