@@ -88,7 +88,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
+
+	log.Printf("list db connection string: %s", dbConnectionString)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
@@ -171,7 +173,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + os.Getenv("MONGO_PORT") + "/" + os.Getenv("MONGO_DATABASE")
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
+
+	log.Printf("seed db connection string: %s", dbConnectionString)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
