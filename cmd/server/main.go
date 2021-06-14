@@ -141,6 +141,11 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 		log.Printf("error with the client cursor: %v", err)
 	}
 
+	// uncomment before building the docker image with Bazel
+	// log.Println("")
+	// log.Println("built with Bazel")
+	// log.Println("")
+
 	log.Println("# -------------------------------------- #")
 	log.Println("done sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
