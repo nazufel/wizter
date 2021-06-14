@@ -85,6 +85,7 @@ func alertDeathEather(w *pb.Wizard) {
 	log.Println("")
 }
 
+// loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
 
 	file, err := os.Open(configMapFile)

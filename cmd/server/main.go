@@ -154,6 +154,7 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 
 }
 
+// loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
 
 	file, err := os.Open(configMapFile)
