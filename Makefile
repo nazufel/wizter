@@ -4,6 +4,10 @@ client:
 	$(clean_command)
 	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .
 
+client-push:
+	$(clean_command)
+	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .
+
 images: client server
 
 load: load-client load-server
@@ -19,6 +23,10 @@ load-server:
 server:
 	$(clean_command)
 	docker build -f cmd/server/Dockerfile -t wizards-server:v1 .
+
+server-push:
+	$(clean_command)
+	docker build -f cmd/client/Dockerfile -t wizards-server:v1 .
 
 proto: 
 	$(clean_command)

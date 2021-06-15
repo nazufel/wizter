@@ -72,18 +72,18 @@ func clientCall() {
 		log.Printf("wizard received: %v", resp.GetName())
 
 		// commenting out for the demo. uncomment during demo of the client
-		if resp.GetDeathEater() {
-			alertDeathEather(resp)
-		}
+		// if resp.GetDeathEater() {
+		// 	alertDeathEather(resp)
+		// }
 	}
 }
 
 // commenting out for the demo. uncomment during demo of the client
-func alertDeathEather(w *pb.Wizard) {
-	log.Println("")
-	log.Printf("Oh no! %s is a Death Eater!", w.GetName())
-	log.Println("")
-}
+// func alertDeathEather(w *pb.Wizard) {
+// 	log.Println("")
+// 	log.Printf("Oh no! %s is a Death Eater!", w.GetName())
+// 	log.Println("")
+// }
 
 // loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
