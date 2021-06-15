@@ -278,6 +278,12 @@ Install the applications' dependencies.
 go mod download 
 ```
 
+Finally, build the protobuf files using the included Make target.
+
+```sh
+make proto
+```
+
 Start the server.
 
 ```sh
@@ -517,3 +523,152 @@ wizards-server: ready to intercept (traffic-agent already installed)
 ```
 
 Now both available intercepts are ready to be started. You should also notice that both the deployed client and deployed server have begun updating their logs again.
+
+Now, let's update the client and validate against the deployed server.
+
+### Update the Client Locally and Validate Against the Deployed Server
+
+Running the client now that the `wizards-server-configMap.txt` file has been created is much easier than running the server. There are not intercepts that need to be done. Running the client is a simple command.
+
+```sh
+go run cmd/client/main.go
+2021/06/15 15:21:06 checking for configMap file at: ./wizards-server-configMap.txt
+2021/06/15 15:21:06 found ./wizards-server-configMap.txt file. setting environment variables
+2021/06/15 15:21:06 done setting environemnt variables
+2021/06/15 15:21:07 # -------------------------------------- #
+2021/06/15 15:21:07 requesting list of wizards from the server
+2021/06/15 15:21:07 # -------------------------------------- #
+2021/06/15 15:21:07 wizard received: Harry Potter
+2021/06/15 15:21:07 wizard received: Ron Weasley
+2021/06/15 15:21:07 wizard received: Hermione Granger
+2021/06/15 15:21:07 wizard received: Cho Chang
+2021/06/15 15:21:07 wizard received: Luna Lovegood
+2021/06/15 15:21:07 wizard received: Sybill Trelawney
+2021/06/15 15:21:07 wizard received: Pomona Sprout
+2021/06/15 15:21:07 wizard received: Cedric Diggory
+2021/06/15 15:21:07 wizard received: Newton Scamander
+2021/06/15 15:21:07 wizard received: Cho Chang
+2021/06/15 15:21:07 wizard received: Draco Malfoy
+2021/06/15 15:21:07 wizard received: Bellatrix Lestrange
+2021/06/15 15:21:07 wizard received: Severus Snape
+2021/06/15 15:21:07 # --------------------------------------#
+2021/06/15 15:21:07 received list of wizards from the server
+2021/06/15 15:21:07 # ------------------------------------- #
+```
+
+The client starts up, finds the config file, and begins asking the deployed server for a list of wizards. 
+
+Let's make a change to this local client. Our users have asked us to alert them if a wizard in the return list is a Death Eater. We can deliver this reqeust easily since Mongo already has that data stored. 
+
+Open the [client](./cmd/client/main.go) file.
+
+There are a few commented out lines at `75-77` and a whole function is commented out at `82-86`. This will enable to functionality to update the logs if a Death Eater is found in the response from the server.
+
+```go
+		// commenting out for the demo. uncomment during demo of the client
+		// if resp.GetDeathEater() {
+		// 	alertDeathEather(resp)
+		// }
+	}
+}
+
+// commenting out for the demo. uncomment during demo of the client
+// func alertDeathEather(w *pb.Wizard) {
+// 	log.Println("")
+// 	log.Printf("Oh no! %s is a Death Eater!", w.GetName())
+// 	log.Println("")
+// }
+
+```
+
+Uncomment the lines to look like this:
+
+```go
+		// commenting out for the demo. uncomment during demo of the client
+		if resp.GetDeathEater() {
+			alertDeathEather(resp)
+		}
+	}
+}
+
+// commenting out for the demo. uncomment during demo of the client
+func alertDeathEather(w *pb.Wizard) {
+	log.Println("")
+	log.Printf("Oh no! %s is a Death Eater!", w.GetName())
+	log.Println("")
+}
+```
+
+Save the file.
+
+Restart the client by pressing `ctrl+c` and running `go run cmd/client/main.go`
+
+```sh
+2021/06/15 15:27:30 checking for configMap file at: ./wizards-server-configMap.txt
+2021/06/15 15:27:30 found ./wizards-server-configMap.txt file. setting environment variables
+2021/06/15 15:27:30 done setting environemnt variables
+2021/06/15 15:27:31 # -------------------------------------- #
+2021/06/15 15:27:31 requesting list of wizards from the server
+2021/06/15 15:27:31 # -------------------------------------- #
+2021/06/15 15:27:31 wizard received: Harry Potter
+2021/06/15 15:27:31 wizard received: Ron Weasley
+2021/06/15 15:27:31 wizard received: Hermione Granger
+2021/06/15 15:27:31 wizard received: Cho Chang
+2021/06/15 15:27:31 wizard received: Luna Lovegood
+2021/06/15 15:27:31 wizard received: Sybill Trelawney
+2021/06/15 15:27:31 wizard received: Pomona Sprout
+2021/06/15 15:27:31 wizard received: Cedric Diggory
+2021/06/15 15:27:31 wizard received: Newton Scamander
+2021/06/15 15:27:31 wizard received: Cho Chang
+2021/06/15 15:27:31 wizard received: Draco Malfoy
+2021/06/15 15:27:31 
+2021/06/15 15:27:31 Oh no! Draco Malfoy is a Death Eater!
+2021/06/15 15:27:31 
+2021/06/15 15:27:31 wizard received: Bellatrix Lestrange
+2021/06/15 15:27:31 
+2021/06/15 15:27:31 Oh no! Bellatrix Lestrange is a Death Eater!
+2021/06/15 15:27:31 
+2021/06/15 15:27:31 wizard received: Severus Snape
+2021/06/15 15:27:31 # --------------------------------------#
+2021/06/15 15:27:31 received list of wizards from the server
+2021/06/15 15:27:31 # ------------------------------------- #
+
+```
+Now the client starts up, requests a list of wizards from the server, and if it finds that a wizard is a Death Eater, there is a warning printed in the logs. 
+
+Good. Our users will be happy with this change.
+
+This concludes the demo. 
+
+### Clean Up
+
+We should be good stewards and clean up. 
+
+First, disconnect Telepresence from the cluster.
+
+```sh
+telepresence quit
+
+Telepresence Daemon quitting...done
+
+telepresence status
+
+Root Daemon: Not running
+User Daemon: Not running
+```
+
+Telepresence is now no longer connected the workstation to the cluster.
+
+The cluster resources can now be cleaned up.
+
+```sh
+kind delete cluster
+
+Deleting cluster "kind" ...
+```
+
+This concludes the demo.
+
+## Contributing
+
+This repository is not accepting contrubutions. 
