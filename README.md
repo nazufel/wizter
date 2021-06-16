@@ -2,7 +2,7 @@
 
 This repository holds code for a demonstration of [Telepresence](https://www.telepresence.io/). Below describes the scripts and commands to setup the demo and run through it. 
 
-The demonstration has three components, all running inside of a Kubernetes cluster, that are not accessable from outside of the cluster (which is the point of Telepresence):
+The demonstration has three components, all running inside of a Kubernetes cluster, that are not accessible from outside of the cluster (which is the point of Telepresence):
 
 * [MongoDB](https://docs.mongodb.com/)
 * [GRPC Client](./cmd/client/main.go)
@@ -16,7 +16,7 @@ The demo applications are simple. They are [GRPC](https://grpc.io/docs/) apps ar
 
 The application is a wizards listing service as defined in the [wizards.proto](./wizards/wizards.proto) file. The client requests a list of wizards from the server. The server retrieves a list of wizards from the database and [streams](https://grpc.io/docs/what-is-grpc/core-concepts/#server-streaming-rpc) them back to the client.
 
-*Note: The apps are meant to be a quickly written simple single file. There are obviously a lot improvements to be made and production best practices implimented. They are just single files with a main package and they import protobuf. The goal of this repo is not to write the prettiest or best tested Go programs, but to demo Telepresence and how it can improve development workflows.
+*Note: The apps are meant to be a quickly written simple single file. There are obviously a lot improvements to be made and production best practices implemented. They are just single files with a main package and they import protobuf. The goal of this repo is not to write the prettiest or best tested Go programs, but to demo Telepresence and how it can improve development workflows.
 
 ## Non-Application Dependencies
 
@@ -115,7 +115,7 @@ wizards-client-66cfb96b7f-9g5z5   1/1     Running             0          23s
 wizards-server-c445d54d6-zx9d9    0/1     Error               2          23s
 ```
 
-The `wizards-server` pod here is failing becuase the MongoDB pod is not up. Wait a few minutes for the MongoDB pod to come up and the server pod should recover.
+The `wizards-server` pod here is failing because the MongoDB pod is not up. Wait a few minutes for the MongoDB pod to come up and the server pod should recover.
 
 ```sh
 kubectl get pods 
@@ -157,7 +157,7 @@ kubectl logs wizards-server-c445d54d6-2phq2
 2021/06/15 18:25:11 # -------------------------------------- #
 ```
 
-Here is a complete batch of wizards retreived from the database and sent to the cleint upon reqeust. Let's look at the client by accessing its logs.
+Here is a complete batch of wizards retrieved from the database and sent to the client upon request. Let's look at the client by accessing its logs.
 
 ```sh
 kubectl logs wizards-client-66cfb96b7f-9g5z5
@@ -219,7 +219,7 @@ In the case of the DNS name, the local DNS could not resolve the requested DNS n
 
 These are to name a few. 
 
-Telepresence alleviates all the above problems. and sets up the networking to make it appear that the laptop is in the cluster and has access to the same depenedencies as the deployed applications do. 
+Telepresence alleviates all the above problems. and sets up the networking to make it appear that the laptop is in the cluster and has access to the same dependencies as the deployed applications do. 
 
 Connect to the cluster with Telepresence. 
 
@@ -256,7 +256,7 @@ curl -m 1 mongo.default.svc.cluster.local:27017
 It looks like you are trying to access MongoDB over HTTP on the native driver port.
 ```
 
-We now get a response from MongoDB and can use its DNS name. It is as if the local workstation is in the cluster. We can now make local modifications to the application code and validate them against a deployed environemnt. 
+We now get a response from MongoDB and can use its DNS name. It is as if the local workstation is in the cluster. We can now make local modifications to the application code and validate them against a deployed environement. 
 
 ### Intercept the Server-Bound Traffic and Run the Server Locally
 
@@ -298,7 +298,7 @@ go run cmd/server/main.go
 exit status 1
 ```
 
-The server immediately starts up and fails. Logs show the server doesn't know where the database is. Let's intercept cluster traffic bound for the deployed server and create a config file based on the environment of the deployed server so that the local config matches exactly with the dpeloyed configuraition. This is done with Telepresence.
+The server immediately starts up and fails. Logs show the server doesn't know where the database is. Let's intercept cluster traffic bound for the deployed server and create a config file based on the environment of the deployed server so that the local config matches exactly with the deployed configuration. This is done with Telepresence.
 
 ```sh
 telepresence intercept wizards-server --namespace default --port 9999:9999 --env-file wizards-server-configMap.txt
@@ -350,7 +350,7 @@ kubectl logs -f wizards-client-66cfb96b7f-9g5z5
 
 ```
 
-The logs have stopped updating every second becuase the client reaches out on port `9999`, but nothing on the local workstation is listening on port `9999`. Open up another terminal and start the server.
+The logs have stopped updating every second because the client reaches out on port `9999`, but nothing on the local workstation is listening on port `9999`. Open up another terminal and start the server.
 
 ```sh
 go run cmd/server/main.go
@@ -358,7 +358,7 @@ go run cmd/server/main.go
 2021/06/15 15:00:15 starting wizards server
 2021/06/15 15:00:15 checking for configMap file at: ./wizards-server-configMap.txt
 2021/06/15 15:00:15 found ./wizards-server-configMap.txt file. setting environment variables
-2021/06/15 15:00:15 done setting environemnt variables
+2021/06/15 15:00:15 done setting environment variables
 2021/06/15 15:00:15 printing MONGO_HOST: mongo.default.svc.cluster.local
 2021/06/15 15:00:15 dropping the wizards collection and seeding database
 2021/06/15 15:00:15 connected to the database
@@ -384,7 +384,7 @@ go run cmd/server/main.go
 
 Now the server successfully starts up because upon start up, it read the environment file and got the same configs that are available to the deployed application. 
 
-Notice how after a few seconds the client started updaing every second and the server logs started updating? The deployed client is now able to access the locally running Go process. If you were to open another terminal and tail the logs of the deployed server, they would not be updating. It receives no traffic, while the local process does. 
+Notice how after a few seconds the client started updating every second and the server logs started updating? The deployed client is now able to access the locally running Go process. If you were to open another terminal and tail the logs of the deployed server, they would not be updating. It receives no traffic, while the local process does. 
 
 Great, now let's update the local process.
 

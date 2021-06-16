@@ -174,7 +174,7 @@ func loadConfigs() {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("done setting environemnt variables")
+	log.Println("done setting environment variables")
 
 }
 
