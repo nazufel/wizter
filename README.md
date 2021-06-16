@@ -22,7 +22,7 @@ The application is a wizards listing service as defined in the [wizards.proto](.
 
 * [Telepresence CLI](https://www.telepresence.io/docs/latest/install/)
 * [Kubernetes](https://kubernetes.io/) (using [Kind](https://kind.sigs.k8s.io/))
-* [GNI Make](https://www.gnu.org/software/make/)
+* [GNU Make](https://www.gnu.org/software/make/)
 
 ## Begin the Demo
 Here are the steps for running the demo.
