@@ -5,8 +5,8 @@ This repository holds code for a demonstration of [Telepresence](https://www.tel
 The demonstration has three components, all running inside of a Kubernetes cluster, that are not accessible from outside of the cluster (which is the point of Telepresence):
 
 * [MongoDB](https://docs.mongodb.com/)
-* [GRPC Client](./cmd/client/main.go)
-* [GRPC Server](./cmd/server/main.go)
+* [gRPC Client](./cmd/client/main.go)
+* [gRPC Server](./cmd/server/main.go)
 
 
 ## The Applications
