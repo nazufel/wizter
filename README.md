@@ -89,7 +89,21 @@ local-path-storage   replicaset.apps/local-path-provisioner-547f784dff   1      
 
 ### Install Version One of the Application
 
-Everything looks good. Let's deploy v1 of the app. Apply the yaml in the `infra` directory to deploy the applications.
+Everything looks good. Let's build and deploy v1 of the app. 
+
+#### Build and Load Docker Images to the Kind Cluster
+
+Kind comes with the ability to load images into the cluster. Within the repo, there is a `make` target to build the images and load them into Kind
+
+```sh
+make all
+```
+
+This target will build both the client and the server and load them into Kind.
+
+#### Deploy V1 of the Apps
+
+Now that the images have been build and loaded into Kind, let's apply the yaml in the `infra` directory to deploy the applications.
 
 
 ```sh
