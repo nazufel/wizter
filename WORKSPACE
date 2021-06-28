@@ -88,8 +88,8 @@ go_repository(
 go_repository(
     name = "com_github_envoyproxy_go_control_plane",
     importpath = "github.com/envoyproxy/go-control-plane",
-    sum = "h1:QyzYnTnPE15SQyUeqU6qLbWxMkwyAyu+vGksa0b7j00=",
-    version = "v0.9.9-0.20210217033140-668b12f5399d",
+    sum = "h1:4cmBvAEBNJaGARUEs3/suWRyfyBfhf7I60WBZq+bv2w=",
+    version = "v0.9.1-0.20191026205805-5f8ba28d4473",
 )
 
 go_repository(
@@ -214,8 +214,8 @@ go_repository(
 go_repository(
     name = "com_github_golang_protobuf",
     importpath = "github.com/golang/protobuf",
-    sum = "h1:LUVKkCeviFUMKqHa4tXIIij/lbhnMbP7Fn5wKdKkRh4=",
-    version = "v1.5.0",
+    sum = "h1:JjCZWpVbqXDqFVmTfYWEVTMIYrL/NPdPSCHPJ0T/raM=",
+    version = "v1.4.3",
 )
 
 go_repository(
@@ -228,8 +228,8 @@ go_repository(
 go_repository(
     name = "com_github_google_go_cmp",
     importpath = "github.com/google/go-cmp",
-    sum = "h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=",
-    version = "v0.5.5",
+    sum = "h1:X2ev0eStA3AbceY54o37/0PQ/UWqKEiiO2dKL5OPaFM=",
+    version = "v0.5.2",
 )
 
 go_repository(
@@ -487,15 +487,15 @@ go_repository(
 go_repository(
     name = "org_golang_google_grpc",
     importpath = "google.golang.org/grpc",
-    sum = "h1:/9BgsAsa5nWe26HqOlvlgJnqBuktYOLCgjCPqsa56W0=",
-    version = "v1.38.0",
+    sum = "h1:rRYRFMVgRv6E0D70Skyfsr28tDXIuuPZyWGMPdMcnXg=",
+    version = "v1.27.0",
 )
 
 go_repository(
     name = "org_golang_google_protobuf",
     importpath = "google.golang.org/protobuf",
-    sum = "h1:bxAC2xTBsZGibn2RTntX0oH50xLsqy1OxA9tTL3p/lk=",
-    version = "v1.26.0",
+    sum = "h1:Ejskq+SyPohKW+1uil0JJMtmHCgJPJ/qWTxr8qp+R4c=",
+    version = "v1.25.0",
 )
 
 go_repository(
@@ -543,8 +543,8 @@ go_repository(
 go_repository(
     name = "org_golang_x_sys",
     importpath = "golang.org/x/sys",
-    sum = "h1:T5DasATyLQfmbTpfEXx/IOL9vfjzW6up+ZDkmHvIf2s=",
-    version = "v0.0.0-20190531175056-4c3a928424d2",
+    sum = "h1:+Nyd8tzPX9R7BWHguqsrbFdRx3WQ/1ib8I44HXV5yTA=",
+    version = "v0.0.0-20200930185726-fdedc70b468f",
 )
 
 go_repository(
@@ -564,8 +564,8 @@ go_repository(
 go_repository(
     name = "org_golang_x_xerrors",
     importpath = "golang.org/x/xerrors",
-    sum = "h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=",
-    version = "v0.0.0-20191204190536-9bdfabe68543",
+    sum = "h1:go1bK/D/BFZV2I8cIQd1NKEZ+0owSTG1fDTci4IqFcE=",
+    version = "v0.0.0-20200804184101-5ec99f83aff1",
 )
 
 go_repository(
@@ -573,6 +573,41 @@ go_repository(
     importpath = "go.mongodb.org/mongo-driver",
     sum = "h1:wWbFB6zaGHpzguF3f7tW94sVE8sFl3lHx8OZx/4OuFI=",
     version = "v1.5.3",
+)
+
+go_repository(
+    name = "com_github_bazelbuild_buildtools",
+    importpath = "github.com/bazelbuild/buildtools",
+    sum = "h1:keyzisQXyaF+rooHcwxN98cgzc7ng3bWpHr70oxUpRM=",
+    version = "v0.0.0-20210526150809-4890966c38b9",
+)
+
+go_repository(
+    name = "com_github_chzyer_logex",
+    importpath = "github.com/chzyer/logex",
+    sum = "h1:Swpa1K6QvQznwJRcfTfQJmTE72DqScAa40E+fbHEXEE=",
+    version = "v1.1.10",
+)
+
+go_repository(
+    name = "com_github_chzyer_readline",
+    importpath = "github.com/chzyer/readline",
+    sum = "h1:fY5BOSpyZCqRo5OhCuC+XN+r/bBCmeuuJtjz+bCNIf8=",
+    version = "v0.0.0-20180603132655-2972be24d48e",
+)
+
+go_repository(
+    name = "com_github_chzyer_test",
+    importpath = "github.com/chzyer/test",
+    sum = "h1:q763qf9huN11kDQavWsoZXJNW3xEE4JJyHa5Q25/sd8=",
+    version = "v0.0.0-20180213035817-a1ea475d72b1",
+)
+
+go_repository(
+    name = "net_starlark_go",
+    importpath = "go.starlark.net",
+    sum = "h1:xwwDQW5We85NaTk2APgoN9202w/l0DVGp+GZMfsrh7s=",
+    version = "v0.0.0-20210223155950-e043a3d3c984",
 )
 
 # initialize go rules
@@ -585,5 +620,24 @@ go_register_toolchains(
 
 # initialize gazelle dependencies
 gazelle_dependencies()
+
+# load proto buff rules
+
+# rules_proto defines abstract rules for building Protocol Buffers.
+http_archive(
+    name = "rules_proto",
+    sha256 = "2490dca4f249b8a9a3ab07bd1ba6eca085aaf8e45a734af92aad0c42d9dc7aaf",
+    strip_prefix = "rules_proto-218ffa7dfa5408492dc86c01ee637614f8695c45",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_proto/archive/218ffa7dfa5408492dc86c01ee637614f8695c45.tar.gz",
+        "https://github.com/bazelbuild/rules_proto/archive/218ffa7dfa5408492dc86c01ee637614f8695c45.tar.gz",
+    ],
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
 
 #EOF
