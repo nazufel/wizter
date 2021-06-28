@@ -2,3 +2,4 @@ grpc-go
 **pb.go
 main
 *configMap.txt
+bazel*

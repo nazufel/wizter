@@ -1,8 +1,8 @@
-module github.com/nazufel/telepresence-demo
+module github.com/nazufel/wizter
 
 go 1.16
 
-replace github.com/nazufel/telepresence-demo/wizard => ./wizard
+replace github.com/nazufel/wizter/wizard => ./wizard
 
 require (
 	github.com/enescakir/emoji v1.0.0

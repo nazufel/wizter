@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	pb "github.com/nazufel/telepresence-demo/wizard"
+	pb "github.com/nazufel/wizter/wizard"
 
 	"google.golang.org/grpc"
 )
