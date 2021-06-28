@@ -3,14 +3,15 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 go_library(
     name = "server_lib",
     srcs = ["main.go"],
-    importpath = "github.com/example/project/cmd/server",
+    importpath = "github.com/nazufel/wizter/cmd/server",
     visibility = ["//visibility:private"],
     deps = [
+        "//wizard",
         "@org_golang_google_grpc//:go_default_library",
-        "@org_mongodb_go_mongo_driver//bson",
-        "@org_mongodb_go_mongo_driver//mongo",
-        "@org_mongodb_go_mongo_driver//mongo/options",
-        "@org_mongodb_go_mongo_driver//mongo/readpref",
+        "@org_mongodb_go_mongo_driver//bson:go_default_library",
+        "@org_mongodb_go_mongo_driver//mongo:go_default_library",
+        "@org_mongodb_go_mongo_driver//mongo/options:go_default_library",
+        "@org_mongodb_go_mongo_driver//mongo/readpref:go_default_library",
     ],
 )
 
