@@ -2,6 +2,7 @@ module github.com/nazufel/wizter
 
 go 1.16
 
+<<<<<<< HEAD
 replace github.com/nazufel/wizter/wizard => ./wizard
 
 require (
@@ -12,3 +13,6 @@ require (
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0
 )
+=======
+replace github.com/nazufel/wizter/wizard => ./wizard
+>>>>>>> ae6760a826a8ef1e4e5608683da72c73d639b524
