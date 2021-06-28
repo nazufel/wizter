@@ -12,7 +12,7 @@ proto_library(
 go_proto_library(
     name = "wizard_go_proto",
     compilers = ["@io_bazel_rules_go//proto:go_grpc"],
-    importpath = "wizard/wizard",
+    importpath = "github.com/example/project/wizard",
     proto = ":wizard_proto",
     visibility = ["//visibility:public"],
 )
@@ -20,6 +20,6 @@ go_proto_library(
 go_library(
     name = "wizard",
     embed = [":wizard_go_proto"],
-    importpath = "wizard/wizard",
+    importpath = "github.com/example/project/wizard",
     visibility = ["//visibility:public"],
 )
