@@ -10,7 +10,7 @@
 
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
-# define all of the libaries the main package depends on 
+# define all of the libaries the main package depends on
 go_library(
     name = "client_lib",
     srcs = ["main.go"],
@@ -34,7 +34,7 @@ go_binary(
 # load rules for using Linux container images and Docker repositories
 load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_push")
 
-# make a base image from alpine linux
+# make a base image from alpine linux that was pulled in the WORKSPACE FILE
 container_image(
     name = "image",
     base = "@alpine_linux_amd64//image",
@@ -46,8 +46,8 @@ container_image(
 # tag the image and push it to a remote registry
 container_push(
     name = "push",
-    image = ":image",
     format = "Docker",
+    image = ":image",
     registry = "index.docker.io",
     repository = "wizter/client",
     tag = "v1",
