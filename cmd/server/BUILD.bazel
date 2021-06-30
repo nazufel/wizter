@@ -1,4 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@io_bazel_rules_docker//container:bundle.bzl", "container_bundle")
 
 go_library(
     name = "server_lib",
@@ -16,7 +18,20 @@ go_library(
 )
 
 go_binary(
-    name = "server",
+    name = "server_binary",
     embed = [":server_lib"],
     visibility = ["//visibility:public"],
+)
+
+go_image(
+    name = "server_go_image",
+    binary = "//cmd/server:server_binary",
+    visibility = ["//visibility:public"],
+)
+
+container_bundle(
+    name = "server-image",
+    images = {
+        "k8s.io/wizter:latest": ":server_go_image",
+    },
 )

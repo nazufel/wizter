@@ -62,6 +62,7 @@ func main() {
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to start the grpc server: %s", err)
+		log.Fatalln("trivial")
 	}
 }
 
