@@ -9,3 +9,7 @@ build --repository_cache=~/.cache/bazel-repo
 fetch --repository_cache=~/.cache/bazel-repo
 query --repository_cache=~/.cache/bazel-repo
 build --disk_cache=~/.cache/bazel-disk
+
+# set platforms to build linux images
+build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
