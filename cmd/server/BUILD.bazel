@@ -54,7 +54,8 @@ container_push(
     format = "Docker",
     image = ":image",
     registry = "index.docker.io",
-    repository = "wizter/server",
+    # change the below to point to your hub.docker.com repository
+    repository = "<your_docker_hub_id>/wizter/binary",
     tag = "v1",
 )
 #EOF
