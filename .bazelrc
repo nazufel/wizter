@@ -1,15 +1,18 @@
-# An even simpler example would not configure any extra caching; but
-# to speed up the CI used for these examples, it’s worth this extra bit
-# of configuration.
+# .bazelrc
 
-# --repository_cache for fetched externals
-# --disk_cache for build artifacts
+# file to configure bazel
+
+# --------------------------------------------------------------------------- #
+
+# set bazel to use local caching
 
 build --repository_cache=~/.cache/bazel-repo
 fetch --repository_cache=~/.cache/bazel-repo
 query --repository_cache=~/.cache/bazel-repo
 build --disk_cache=~/.cache/bazel-disk
 
-# set platforms to build linux images
+# set bazel to build Linux Docker images
 build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+
+#EOF
