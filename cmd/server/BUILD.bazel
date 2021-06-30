@@ -1,5 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
-load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_push")
 
 go_library(
     name = "server_lib",
@@ -17,13 +17,24 @@ go_library(
 )
 
 go_binary(
-    name = "server_binary",
+    name = "binary",
     embed = [":server_lib"],
     visibility = ["//visibility:public"],
 )
 
-go_image(
-    name = "server_image",
-    binary = "//cmd/server:server_binary",
-    visibility = ["//visibility:public"],
+container_image(
+    name = "image",
+    base = "@alpine_linux_amd64//image",
+    entrypoint = ["/binary"],
+    files = [":binary"],
+    repository = "ryanthebossross",
+)
+
+container_push(
+    name = "push",
+    image = ":image",
+    format = "Docker",
+    registry = "index.docker.io",
+    repository = "ryanthebossross/wizter-server",
+    tag = "v1",
 )
