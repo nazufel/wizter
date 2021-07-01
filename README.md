@@ -16,7 +16,7 @@ The Wizter application is a wizards listing service as defined in the [wizard.pr
 
 ## Included Demos
 
-* [Bazel](./demos/07-29-2021-bazel.md)
+* [Bazel](./demos/06-29-2021-bazel.md)
 * [Telepresene](./demos/06-11-2021-telepresence.md)
 
 
