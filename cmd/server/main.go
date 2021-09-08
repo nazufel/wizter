@@ -67,7 +67,7 @@ func main() {
 }
 
 //List is the gRPC service method that retrieves a list of wizards from the database and streams back to the client
-func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
+func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
 
 	log.Println("# -------------------------------------- #")
 	log.Println("sending list of wizards to client")

@@ -12,36 +12,13 @@ import (
 	pb "github.com/nazufel/wizter/wizard"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 const configMapFile = "./wizards-server-configMap.txt"
 
-func main() {
-	// set envs for local dev if the intercept env file exists
-	log.Printf("checking for configMap file at: %v", configMapFile)
-	_, err := os.Stat(configMapFile)
-	if !os.IsNotExist(err) {
-		log.Printf("found %s file. setting environment variables", configMapFile)
-		loadConfigs()
-	}
-	if os.IsNotExist(err) {
-		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
-	}
-
-	for {
-		time.Sleep(1 * time.Second)
-		log.Println("# -------------------------------------- #")
-		log.Println("requesting list of wizards from the server")
-		log.Println("# -------------------------------------- #")
-
-		clientCall()
-		log.Println("# --------------------------------------#")
-		log.Println("received list of wizards from the server")
-		log.Println("# ------------------------------------- #")
-	}
-}
-
-func clientCall() {
+// clientCall func makes the call to the sever to get a list of wizards
+func clientCall(ic int32) {
 
 	address := os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
 
@@ -56,7 +33,15 @@ func clientCall() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	stream, err := c.List(ctx, &pb.EmptyRequest{})
+	// adding Telepresence intercept header to set up a personal intercept - https://www.getambassador.io/docs/telepresence/latest/howtos/intercepts/#4-personal-intercept
+	// the client will only progate headers on everyother request so that the user will only be able to intercept up to half of the requests and this won't cause a
+	// complete outage.
+	if ic%2 == 0 {
+		md := metadata.New(map[string]string{"x-telepresence-intercept-id": "tele-demo"})
+		ctx = metadata.NewOutgoingContext(ctx, md)
+	}
+
+	stream, err := c.List(ctx, &pb.Wizard{})
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
 	}
@@ -106,4 +91,39 @@ func loadConfigs() {
 	}
 	log.Println("done setting environment variables")
 
+}
+
+// func main is the main function
+func main() {
+	// set envs for local dev if the intercept env file exists
+	log.Printf("checking for configMap file at: %v", configMapFile)
+	_, err := os.Stat(configMapFile)
+	if !os.IsNotExist(err) {
+		log.Printf("found %s file. setting environment variables", configMapFile)
+		loadConfigs()
+	}
+	if os.IsNotExist(err) {
+		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
+	}
+
+	// interceptCounter increases a counter to control if
+	var interceptCounter int32
+
+	for {
+		time.Sleep(1 * time.Second)
+		log.Println("# -------------------------------------- #")
+		log.Println("requesting list of wizards from the server")
+		log.Println("# -------------------------------------- #")
+
+		// call for a list of wizards and pass in the counter
+		clientCall(interceptCounter)
+		log.Println("# --------------------------------------#")
+		log.Println("received list of wizards from the server")
+		log.Println("# ------------------------------------- #")
+		// if counter reaches greather than 100,000,000, then reset it as to not overflow
+		if interceptCounter > 100000000 {
+			interceptCounter = 0
+		}
+		interceptCounter++
+	}
 }
