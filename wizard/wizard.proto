@@ -10,7 +10,6 @@ message Wizard {
 	bool deathEater = 3;
 }
 
-
 service WizardService {
 	rpc List(Wizard) returns (stream Wizard) {}
 }
