@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: wizards-server
-          image: wizards-server:v1
+          image: wizter/cmd/server:image
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 9999

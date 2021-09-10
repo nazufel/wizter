@@ -1,8 +1,8 @@
 all: images load 
 
-client:
+run-client:
 	$(clean_command)
-	docker build -f cmd/client/Dockerfile -t wizards-client:v1 .
+	bazelisk run //cmd/client
 
 client-push:
 	$(clean_command)
@@ -14,15 +14,15 @@ load: load-client load-server
 
 load-client:
 	$(clean_command):
-	kind load docker-image wizards-client:v1
+	kind load docker-image wizter/cmd/client:image
 
 load-server:
 	$(clean_command):
-	kind load docker-image wizards-server:v1
+	kind load docker-image wizter/cmd/server:image
 
-server:
+run-server:
 	$(clean_command)
-	docker build -f cmd/server/Dockerfile -t wizards-server:v1 .
+	bazelisk run //cmd/server
 
 server-push:
 	$(clean_command)
