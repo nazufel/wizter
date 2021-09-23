@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  labels:
+    name: server
+  namespace: wizards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: server
+  template:
+    metadata:
+      labels:
+        name: server
+    spec:
+      containers:
+        - name: server
+          image: wizter/cmd/server:v3
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 9999
+          resources:
+            limits:
+              cpu: 0.2
+              memory: 20Mi
+            requests:
+              cpu: 0.1
+              memory: 10Mi
+          env:
+            - name: "WIZARDS_SERVER_GRPC_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: "server"
+                  key: "WIZARDS_SERVER_GRPC_PORT"
+            - name: "MONGO_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  name: "server"
+                  key: "MONGO_HOST"
+            - name: "MONGO_DATABASE"
+              valueFrom:
+                configMapKeyRef:
+                  name: "server"
+                  key: "MONGO_DATABASE"

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    name: client
+  namespace: wizards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: client
+  template:
+    metadata:
+      labels:
+        name: client
+    spec:
+      containers:
+        - name: client
+          image: wizter/cmd/client:v2
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            limits:
+              cpu: 0.2
+              memory: 20Mi
+            requests:
+              cpu: 0.1
+              memory: 10Mi
+          env:
+            - name: "WIZARDS_SERVER_GRPC_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  name: "client"
+                  key: "WIZARDS_SERVER_GRPC_PORT"
+            - name: "WIZARDS_SERVER_SERVICE_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  name: "client"
+                  key: "WIZARDS_SERVER_SERVICE_HOST"
