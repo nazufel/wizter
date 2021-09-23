@@ -22,7 +22,7 @@ func dbConnect() (*storage, error) {
 
 	s := new(storage)
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/?connect=direct" // + os.Getenv("MONGO_DATABASE") 
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
@@ -30,12 +30,6 @@ func dbConnect() (*storage, error) {
 	defer cancel()
 
 	err = client.Connect(ctx)
-	defer func() {
-		err = client.Disconnect(ctx)
-		if err != nil {
-			log.Fatalf("failed to disconnect client:  %v", err)
-		}
-	}()
 
 	// test connection
 	err = client.Ping(ctx, readpref.Primary())

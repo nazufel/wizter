@@ -36,13 +36,13 @@ func main() {
 
 	log.Printf("printing MONGO_HOST: %v", os.Getenv("MONGO_HOST"))
 
-	log.Println("dropping the wizards collection and seeding database")
-
 	s, err := dbConnect()
 	if err != nil {
 		log.Fatalf("cannot connect to DB", err)
 	}
 
+	log.Println("dropping the wizards collection and seeding database")
+	
 	err = s.seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
