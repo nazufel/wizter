@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wizards-server-configmap
-  namespace: default
+  name: server
+  namespace: wizards
   labels:
-    name: wizards-server-configmap
+    name: server
 data:
-  MONGO_HOST: "mongo.default.svc.cluster.local"
+  MONGO_HOST: "mongo.wizards.svc.cluster.local"
   WIZARDS_SERVER_GRPC_PORT: "9999"
-  MONGO_DATABASE: "wizard"
+  MONGO_DATABASE: "wizards"

@@ -4,6 +4,7 @@ metadata:
   name: mongo
   labels:
     name: mongo
+  namespace: wizards
 spec:
   ports:
   - port: 27017

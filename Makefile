@@ -14,6 +14,7 @@ build-servers:
 
 deploy-v1:
 	$(clean_command)
+	kubectl apply -f infra/wizards-namespace.yaml
 	kubectl apply -f infra/mongo-pv.yaml
 	kubectl apply -f infra/mongo-pvc.yaml
 	kubectl apply -f infra/mongo-svc.yaml
@@ -21,9 +22,34 @@ deploy-v1:
 	kubectl apply -f infra/wizards-client-configmap.yaml
 	kubectl apply -f infra/wizards-server-configmap.yaml
 	kubectl apply -f infra/wizards-server-svc.yaml
-	kubectl apply -f infra/wizards-deployment-server.yaml
-	kubectl apply -f infra/wizards-deployment-client.yaml
+	kubectl apply -f infra/wizards-server-deployment-1.yaml
+	kubectl apply -f infra/wizards-client-deployment-1.yaml
 
+deploy-v2:
+	$(clean_command)
+	kubectl apply -f infra/wizards-namespace.yaml
+	kubectl apply -f infra/mongo-pv.yaml
+	kubectl apply -f infra/mongo-pvc.yaml
+	kubectl apply -f infra/mongo-svc.yaml
+	kubectl apply -f infra/mongo-deployment.yaml
+	kubectl apply -f infra/wizards-client-configmap.yaml
+	kubectl apply -f infra/wizards-server-configmap.yaml
+	kubectl apply -f infra/wizards-server-svc.yaml
+	kubectl apply -f infra/wizards-server-deployment-2.yaml
+	kubectl apply -f infra/wizards-client-deployment-2.yaml
+
+deploy-v3:
+	$(clean_command)
+	kubectl apply -f infra/wizards-namespace.yaml
+	kubectl apply -f infra/mongo-pv.yaml
+	kubectl apply -f infra/mongo-pvc.yaml
+	kubectl apply -f infra/mongo-svc.yaml
+	kubectl apply -f infra/mongo-deployment.yaml
+	kubectl apply -f infra/wizards-client-configmap.yaml
+	kubectl apply -f infra/wizards-server-configmap.yaml
+	kubectl apply -f infra/wizards-server-svc.yaml
+	kubectl apply -f infra/wizards-server-deployment-3.yaml
+	kubectl apply -f infra/wizards-client-deployment-3.yaml
 
 push-client:
 	$(clean_command)

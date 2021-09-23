@@ -60,7 +60,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_HOST")))
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -146,18 +148,24 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 func loadConfigs() {
 
 	if os.Getenv("MONGO_HOST") == "" {
-		os.Setenv("MONGO_HOST", "mongodb://mongo.default.svc.cluster.local")
+		os.Setenv("MONGO_HOST", "mongo.wizards.svc.cluster.local")
 	}
 
 	if os.Getenv("WIZARDS_SERVER_GRPC_PORT") == "" {
 		os.Setenv("WIZARDS_SERVER_GRPC_PORT", "9999")
+	}
+
+	if os.Getenv("MONGO_DATABASE") == "" {
+		os.Setenv("MONGO_DATABASE", "wizards")
 	}
 }
 
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_HOST")))
+	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

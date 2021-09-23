@@ -12,8 +12,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const configMapFile = "./wizards-server-configMap.txt"
-
 func main() {
 
 	loadConfigs()
@@ -35,6 +33,9 @@ func clientCall() {
 
 	address := os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
 
+	log.Println("starting client")
+
+	log.Printf("connecting to address: %v", address)
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -78,8 +79,8 @@ func clientCall() {
 // loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
 
-	if os.Getenv("WIZARDS_SERVER_GRPC_HOST") == "" {
-		os.Setenv("WIZARDS_SERVER_GRPC_HOST", "localhost")
+	if os.Getenv("WIZARDS_SERVER_SERVICE_HOST") == "" {
+		os.Setenv("WIZARDS_SERVER_SERVICE_HOST", "localhost")
 	}
 
 	if os.Getenv("WIZARDS_SERVER_GRPC_PORT") == "" {
