@@ -53,9 +53,7 @@ func main() {
 }
 
 //List is the gRPC service method that retrieves a list of wizards from the database and streams back to the client
-func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
-
-	log.Println("hit list")
+func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
 
 	var st storage
 
@@ -66,40 +64,7 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 		return err
 	}
 
-	log.Println("# -------------------------------------- #")
-	log.Println("sending list of wizards to client")
-	log.Println("# -------------------------------------- #")
 
-	for i := range wizards {
-		// Commenting out. Uncomment when making the server change in the demo
-		// switch house := wizard.House; house {
-		// case "Gryffindor":
-		// 	log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
-		// case "Ravenclaw":
-		// 	log.Printf("%v - sending wizard to client: %v", emoji.Bird, wizard.GetName())
-		// case "Hufflepuff":
-		// 	log.Printf("%v - sending wizard to client: %v", emoji.Badger, wizard.GetName())
-		// case "Slytherin":
-		// 	log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
-		// }
-
-
-		wizard := wizards[i]
-
-		err := srv.Send(wizard)
-		if err != nil {
-			log.Printf("send error: %v", err)
-		}
-	}
-
-	// uncomment before building the docker image with Bazel
-	// log.Println("")
-	// log.Println("built with Bazel")
-	// log.Println("")
-
-	log.Println("# -------------------------------------- #")
-	log.Println("done sending list of wizards to client")
-	log.Println("# -------------------------------------- #")
 
 	return nil
 

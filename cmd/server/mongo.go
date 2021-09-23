@@ -48,7 +48,7 @@ func dbConnect() (*storage, error) {
 	return s, nil
 }
 
-func (s *storage) getWizards() ([]*pb.Wizard, error) {
+func (s *storage) getWizards() error {
 
 	// set find options behavior
 	findOptions := options.Find()
@@ -60,11 +60,11 @@ func (s *storage) getWizards() ([]*pb.Wizard, error) {
 	cursor, err := s.db.Collection("wizards").Find(context.Background(), filter, findOptions)
 	if err != nil {
 		log.Printf("failed to get wizards: %v", err)
-		return nil, err
+		return err
 	}
 	defer cursor.Close(context.Background())
 
-	var wizards []*pb.Wizard
+	var srv server
 
 	for cursor.Next(context.Background()) {
 		var wizard *pb.Wizard
@@ -72,10 +72,15 @@ func (s *storage) getWizards() ([]*pb.Wizard, error) {
 		err := cursor.Decode(&wizard)
 		if err != nil {
 			log.Printf("unable to decode wizard cursor into struct: %v", err)
-			return nil, err
+			return err
 		}
 
-		wizards = append(wizards, wizard)
+
+		err = srv.clientResponse(wizard, pb.WizardService_ListServer)
+		if err != nil {
+			return err
+		}
+
 
 		// comment this log statement as part of the server demo
 		log.Printf("sending wizard to client: %v", wizard.GetName())
@@ -85,10 +90,10 @@ func (s *storage) getWizards() ([]*pb.Wizard, error) {
 	err = cursor.Err()
 	if err != nil {
 		log.Printf("error with the client cursor: %v", err)
-		return nil, err
+		return err
 	}
 
-	return wizards, nil
+	return nil
 }
 
 // seedData drops the wizards collection and seeds it with fresh data to the demo
