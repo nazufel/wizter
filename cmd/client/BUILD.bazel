@@ -36,10 +36,28 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_image", "cont
 
 # make a base image from alpine linux that was pulled in the WORKSPACE FILE
 container_image(
-    name = "image",
+    name = "v1",
     base = "@alpine_linux_amd64//image",
     entrypoint = ["/binary"],
-    files = [":binary"],
+    files = [":client"],
+    repository = "wizter",
+)
+
+# make a base image from alpine linux that was pulled in the WORKSPACE FILE
+container_image(
+    name = "v2",
+    base = "@alpine_linux_amd64//image",
+    entrypoint = ["/binary"],
+    files = [":client"],
+    repository = "wizter",
+)
+
+# make a base image from alpine linux that was pulled in the WORKSPACE FILE
+container_image(
+    name = "v3",
+    base = "@alpine_linux_amd64//image",
+    entrypoint = ["/binary"],
+    files = [":client"],
     repository = "wizter",
 )
 

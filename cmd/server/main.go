@@ -15,8 +15,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const configMapFile = "./wizards-server-configMap.txt"
-
 type server struct {
 	pb.WizardServiceServer
 }
@@ -105,7 +103,7 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 			log.Printf("unable to decode wizard cursor into struct: %v", err)
 		}
 
-		// Commenting out. Uncomment when making the server change in the demo
+		// // Commenting out. Uncomment when making the server change in the demo
 		// switch house := wizard.House; house {
 		// case "Gryffindor":
 		// 	log.Printf("%v - sending wizard to client: %v", emoji.Eagle, wizard.GetName())
