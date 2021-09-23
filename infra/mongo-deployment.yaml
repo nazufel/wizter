@@ -14,9 +14,16 @@ spec:
       labels:
         name: mongo
     spec:
+      volumes:
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: mongo-pvc
       containers:
         - name: mongo
           image: mongo
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 27017
+          volumeMounts:
+            - mountPath: "/data/db"
+              name: mongo-storage

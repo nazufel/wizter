@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
@@ -12,17 +11,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// storage struct holds information about connecting to storage
 type storage struct {
 	c  *mongo.Client
 	db *mongo.Database
 }
 
-// func dbConnect creates a new connection to the DB.
+// func dbConnect creates a new connection to storage
 func dbConnect() (*storage, error) {
 
 	s := new(storage)
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST")
+	dbConnectionString := "mongodb://mongo.default.svc.cluster.local"
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
@@ -45,8 +45,6 @@ func dbConnect() (*storage, error) {
 
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func (s *storage) seedData() error {
-
-	log.Printf("seed data client: %v", s.c)
 
 	// // drop the collection in order to see fresh data for a new run
 	err := s.db.Collection("wizards").Drop(context.Background())
