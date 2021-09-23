@@ -34,7 +34,7 @@ func main() {
 
 func clientCall() {
 
-	address := os.Getenv("WIZARDS_SERVER_SERVICE_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
+	address := os.Getenv("WIZARDS_SERVER_GRPC_HOST") + ":" + os.Getenv("WIZARDS_SERVER_GRPC_PORT")
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -47,7 +47,7 @@ func clientCall() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	stream, err := c.List(ctx, *pb.EmptyRequest)
+	stream, err := c.List(ctx, &pb.Wizard{})
 	if err != nil {
 		log.Fatalf("could not send message: %v", err)
 	}
