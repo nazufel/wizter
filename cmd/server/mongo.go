@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
@@ -21,11 +22,14 @@ type storage struct {
 // func dbConnect creates a new connection to storage
 func dbConnect() (*storage, error) {
 
+	log.Printf("connecting to database host: %v", os.Getenv("MONGO_HOST"))
+
 	s := new(storage)
-
-	dbConnectionString := "mongodb://mongo.default.svc.cluster.local"
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
+	
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_HOST")))
+	if err != nil {
+		log.Printf("new client error: %v", err)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -44,7 +48,8 @@ func dbConnect() (*storage, error) {
 	return s, nil
 }
 
-func (s *storage) getWizards() ([]pb.Wizard, error) {
+func (s *storage) getWizards() ([]*pb.Wizard, error) {
+
 	// set find options behavior
 	findOptions := options.Find()
 	// findOptions.SetLimit(25)
@@ -59,10 +64,10 @@ func (s *storage) getWizards() ([]pb.Wizard, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	var wizards []pb.Wizard
+	var wizards []*pb.Wizard
 
 	for cursor.Next(context.Background()) {
-		var wizard pb.Wizard
+		var wizard *pb.Wizard
 
 		err := cursor.Decode(&wizard)
 		if err != nil {
@@ -95,8 +100,7 @@ func (s *storage) seedData() error {
 		log.Fatalf("unable to drop the wizard collection %v", err)
 	}
 
-	// seed the database
-
+	// seed the database with stubbed data
 	wizards := []pb.Wizard{
 		{Name: "Harry Potter",
 			House:      "Gryffindor",

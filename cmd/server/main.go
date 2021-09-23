@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"log"
 	"net"
 	"os"
-	"strings"
 
 	pb "github.com/nazufel/wizter/wizard"
 	"google.golang.org/grpc"
@@ -20,18 +18,7 @@ type server struct {
 func main() {
 	log.Println("starting wizards server")
 
-	// set envs for local dev if the intercept env file exists
-	log.Printf("checking for configMap file at: %v", configMapFile)
-	_, err := os.Stat(configMapFile)
-	if !os.IsNotExist(err) {
-		log.Printf("found %s file. setting environment variables", configMapFile)
-		loadConfigs()
-	}
-	if os.IsNotExist(err) {
-		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
-	}
-
-	log.Printf("printing MONGO_HOST: %v", os.Getenv("MONGO_HOST"))
+	loadConfigs()
 
 	s, err := dbConnect()
 	if err != nil {
@@ -66,9 +53,12 @@ func main() {
 }
 
 //List is the gRPC service method that retrieves a list of wizards from the database and streams back to the client
-func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
+func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
+
+	log.Println("hit list")
 
 	var st storage
+
 
 	wizards, err := st.getWizards()
 	if err != nil {
@@ -92,7 +82,11 @@ func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
 		// case "Slytherin":
 		// 	log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
 		// }
-		err := srv.Send(wizards[i])
+
+
+		wizard := wizards[i]
+
+		err := srv.Send(wizard)
 		if err != nil {
 			log.Printf("send error: %v", err)
 		}
@@ -111,25 +105,17 @@ func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
 
 }
 
-// loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
+// loadConfigs looks for env variables and if they aren't set, then it sets happy defaults
 func loadConfigs() {
 
-	file, err := os.Open(configMapFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		s := strings.Split(scanner.Text(), "=")
-		os.Setenv(s[0], s[1])
+	// check and set the port for the GRPC server to listen on
+	if os.Getenv("WIZARDS_SERVER_GRPC_PORT") == "" {
+		os.Setenv("WIZARDS_SERVER_GRPC_PORT", "9999")
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	// check and set the dna name of mongo
+	if os.Getenv("MONGO_HOST") == "" {
+		os.Setenv("MONGO_HOST", "mongodb://mongo.default.svc.cluster.local")
 	}
-	log.Println("done setting environment variables")
 
 }
