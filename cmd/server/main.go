@@ -2,15 +2,12 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"log"
 	"net"
 	"os"
 	"strings"
 
 	pb "github.com/nazufel/wizter/wizard"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 )
 
@@ -42,7 +39,7 @@ func main() {
 	}
 
 	log.Println("dropping the wizards collection and seeding database")
-	
+
 	err = s.seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
@@ -69,35 +66,21 @@ func main() {
 }
 
 //List is the gRPC service method that retrieves a list of wizards from the database and streams back to the client
-func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error {
+func (s *server) List(e *pb.Wizard, srv pb.WizardService_ListServer) error {
+
+	var st storage
+
+	wizards, err := st.getWizards()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
 	log.Println("# -------------------------------------- #")
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	// set find options behavior
-	findOptions := options.Find()
-	// findOptions.SetLimit(25)
-
-	// filter by company, this is the default behavior
-	filter := bson.D{{}}
-
-	var m storage
-
-	cursor, err := m.db.Collection("wizards").Find(context.Background(), filter, findOptions)
-	if err != nil {
-		log.Printf("failed to get wizards: %v", err)
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var wizard pb.Wizard
-
-		err := cursor.Decode(&wizard)
-		if err != nil {
-			log.Printf("unable to decode wizard cursor into struct: %v", err)
-		}
-
+	for i := range wizards {
 		// Commenting out. Uncomment when making the server change in the demo
 		// switch house := wizard.House; house {
 		// case "Gryffindor":
@@ -109,19 +92,10 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 		// case "Slytherin":
 		// 	log.Printf("%v - sending wizard to client: %v", emoji.Snake, wizard.GetName())
 		// }
-
-		// comment this log statement as part of the server demo
-		log.Printf("sending wizard to client: %v", wizard.GetName())
-
-		err = srv.Send(&wizard)
+		err := srv.Send(wizards[i])
 		if err != nil {
 			log.Printf("send error: %v", err)
 		}
-	}
-
-	err = cursor.Err()
-	if err != nil {
-		log.Printf("error with the client cursor: %v", err)
 	}
 
 	// uncomment before building the docker image with Bazel

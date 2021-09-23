@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -41,6 +42,48 @@ func dbConnect() (*storage, error) {
 	s.db = client.Database("wizards")
 
 	return s, nil
+}
+
+func (s *storage) getWizards() ([]pb.Wizard, error) {
+	// set find options behavior
+	findOptions := options.Find()
+	// findOptions.SetLimit(25)
+
+	// filter by company, this is the default behavior
+	filter := bson.D{{}}
+
+	cursor, err := s.db.Collection("wizards").Find(context.Background(), filter, findOptions)
+	if err != nil {
+		log.Printf("failed to get wizards: %v", err)
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var wizards []pb.Wizard
+
+	for cursor.Next(context.Background()) {
+		var wizard pb.Wizard
+
+		err := cursor.Decode(&wizard)
+		if err != nil {
+			log.Printf("unable to decode wizard cursor into struct: %v", err)
+			return nil, err
+		}
+
+		wizards = append(wizards, wizard)
+
+		// comment this log statement as part of the server demo
+		log.Printf("sending wizard to client: %v", wizard.GetName())
+
+	}
+
+	err = cursor.Err()
+	if err != nil {
+		log.Printf("error with the client cursor: %v", err)
+		return nil, err
+	}
+
+	return wizards, nil
 }
 
 // seedData drops the wizards collection and seeds it with fresh data to the demo
