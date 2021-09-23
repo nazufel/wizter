@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
@@ -17,16 +15,8 @@ import (
 const configMapFile = "./wizards-server-configMap.txt"
 
 func main() {
-	// set envs for local dev if the intercept env file exists
-	log.Printf("checking for configMap file at: %v", configMapFile)
-	_, err := os.Stat(configMapFile)
-	if !os.IsNotExist(err) {
-		log.Printf("found %s file. setting environment variables", configMapFile)
-		loadConfigs()
-	}
-	if os.IsNotExist(err) {
-		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
-	}
+
+	loadConfigs()
 
 	for {
 		time.Sleep(1 * time.Second)
@@ -88,22 +78,11 @@ func clientCall() {
 // loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
 
-	file, err := os.Open(configMapFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		s := strings.Split(scanner.Text(), "=")
-		os.Setenv(s[0], s[1])
+	if os.Getenv("WIZARDS_SERVER_GRPC_HOST") == "" {
+		os.Setenv("WIZARDS_SERVER_GRPC_HOST", "localhost")
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	if os.Getenv("WIZARDS_SERVER_GRPC_PORT") == "" {
+		os.Setenv("WIZARDS_SERVER_GRPC_PORT", "9999")
 	}
-	log.Println("done setting environment variables")
-
 }

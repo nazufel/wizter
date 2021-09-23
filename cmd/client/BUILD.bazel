@@ -24,7 +24,7 @@ go_library(
 
 # build the binary with all of the dependent libraries
 go_binary(
-    name = "binary",
+    name = "client",
     embed = [":client_lib"],
     visibility = ["//visibility:public"],
 )

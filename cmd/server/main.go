@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"log"
 	"net"
 	"os"
-	"strings"
 	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
@@ -27,21 +25,12 @@ func main() {
 	log.Println("starting wizards server")
 
 	// set envs for local dev if the intercept env file exists
-	log.Printf("checking for configMap file at: %v", configMapFile)
-	_, err := os.Stat(configMapFile)
-	if !os.IsNotExist(err) {
-		log.Printf("found %s file. setting environment variables", configMapFile)
-		loadConfigs()
-	}
-	if os.IsNotExist(err) {
-		log.Printf("did not find config file: %s. using Kubernetes environment", configMapFile)
-	}
-
+	loadConfigs()
 	log.Printf("printing MONGO_HOST: %v", os.Getenv("MONGO_HOST"))
 
 	log.Println("dropping the wizards collection and seeding database")
 
-	err = seedData()
+	err := seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
 	}
@@ -73,9 +62,8 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_HOST")))
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -159,32 +147,19 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 // loadConfigs looks for a specific file of key=value pairs and loads them as variables for the runtime instance
 func loadConfigs() {
 
-	file, err := os.Open(configMapFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		// fmt.Println(scanner.Text())
-		s := strings.Split(scanner.Text(), "=")
-		os.Setenv(s[0], s[1])
+	if os.Getenv("MONGO_HOST") == "" {
+		os.Setenv("MONGO_HOST", "mongodb://mongo.default.svc.cluster.local")
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	if os.Getenv("WIZARDS_SERVER_GRPC_PORT") == "" {
+		os.Setenv("WIZARDS_SERVER_GRPC_PORT", "9999")
 	}
-	log.Println("done setting environment variables")
-
 }
 
 // seedData drops the wizards collection and seeds it with fresh data to the demo
 func seedData() error {
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_HOST")))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
