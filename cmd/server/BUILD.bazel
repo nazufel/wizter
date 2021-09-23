@@ -14,7 +14,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 # define all of the libaries the main package depends on
 go_library(
     name = "server_lib",
-    srcs = ["main.go"],
+    srcs = [
+        "main.go",
+        "mongo.go",
+    ],
     importpath = "github.com/nazufel/wizter/cmd/server",
     visibility = ["//visibility:private"],
     deps = [

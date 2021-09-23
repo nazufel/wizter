@@ -7,13 +7,10 @@ import (
 	"net"
 	"os"
 	"strings"
-	"time"
 
 	pb "github.com/nazufel/wizter/wizard"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"google.golang.org/grpc"
 )
 
@@ -41,7 +38,12 @@ func main() {
 
 	log.Println("dropping the wizards collection and seeding database")
 
-	err = seedData()
+	s, err := dbConnect()
+	if err != nil {
+		log.Fatalf("cannot connect to DB", err)
+	}
+
+	err = s.seedData()
 	if err != nil {
 		log.Fatalf("failed to seed the DB: %v", err)
 	}
@@ -73,29 +75,6 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	log.Println("sending list of wizards to client")
 	log.Println("# -------------------------------------- #")
 
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-
-	err = client.Connect(ctx)
-	defer func() {
-		err = client.Disconnect(ctx)
-		if err != nil {
-			log.Fatalf("failed to disconnect client:  %v", err)
-		}
-	}()
-
-	// test connection
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatalf("error pinging DB: %v", err)
-	}
-
-	db := client.Database("wizards")
-
 	// set find options behavior
 	findOptions := options.Find()
 	// findOptions.SetLimit(25)
@@ -103,7 +82,9 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	// filter by company, this is the default behavior
 	filter := bson.D{{}}
 
-	cursor, err := db.Collection("wizards").Find(ctx, filter, findOptions)
+	var m storage
+
+	cursor, err := m.db.Collection("wizards").Find(context.Background(), filter, findOptions)
 	if err != nil {
 		log.Printf("failed to get wizards: %v", err)
 	}
@@ -177,104 +158,4 @@ func loadConfigs() {
 	}
 	log.Println("done setting environment variables")
 
-}
-
-// seedData drops the wizards collection and seeds it with fresh data to the demo
-func seedData() error {
-
-	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-
-	err = client.Connect(ctx)
-	defer func() {
-		err = client.Disconnect(ctx)
-		if err != nil {
-			log.Fatalf("failed to disconnect client:  %v", err)
-		}
-	}()
-
-	// test connection
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatalf("error pinging DB: %v", err)
-	}
-
-	db := client.Database("wizards")
-
-	// // drop the collection in order to see fresh data for a new run
-	err = db.Collection("wizards").Drop(context.Background())
-	if err != nil {
-		log.Fatal("unable drop the wizard collection")
-	}
-
-	// seed the database
-
-	wizards := []pb.Wizard{
-		{Name: "Harry Potter",
-			House:      "Gryffindor",
-			DeathEater: false,
-		},
-		{Name: "Ron Weasley",
-			House:      "Gryffindor",
-			DeathEater: false,
-		},
-		{Name: "Hermione Granger",
-			House:      "Gryffindor",
-			DeathEater: false,
-		},
-		{Name: "Cho Chang",
-			House:      "Ravenclaw",
-			DeathEater: false,
-		},
-		{Name: "Luna Lovegood",
-			House:      "Ravenclaw",
-			DeathEater: false,
-		},
-		{Name: "Sybill Trelawney",
-			House:      "Ravenclaw",
-			DeathEater: false,
-		},
-		{Name: "Pomona Sprout",
-			House:      "Hufflepuff",
-			DeathEater: false,
-		},
-		{Name: "Cedric Diggory",
-			House:      "Hufflepuff",
-			DeathEater: false,
-		},
-		{Name: "Newton Scamander",
-			House:      "Hufflepuff",
-			DeathEater: false,
-		},
-		{Name: "Draco Malfoy",
-			House:      "Slytherin",
-			DeathEater: true,
-		},
-		{Name: "Bellatrix Lestrange",
-			House:      "Slytherin",
-			DeathEater: true,
-		},
-		{Name: "Severus Snape",
-			House:      "Slytherin",
-			DeathEater: false,
-		},
-	}
-	log.Printf("connected to the database")
-
-	for i := range wizards {
-		_, err = db.Collection("wizards").InsertOne(ctx, wizards[i])
-		if err != nil {
-			log.Fatalf("failed to insert document: %v", err)
-		}
-		log.Printf("inserted document for wizard: %s", wizards[i].Name)
-		i++
-	}
-
-	log.Printf("inserted %v documents", len(wizards))
-
-	return err
 }
