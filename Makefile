@@ -1,4 +1,4 @@
-all: images load-all
+build-all: images load-all
 
 build-clients:
 	$(clean_command)
@@ -11,6 +11,10 @@ build-servers:
 	bazelisk run //cmd/server:v1
 	bazelisk run //cmd/server:v2
 	bazelisk run //cmd/server:v3
+
+cluster:
+	$(clean_command)
+	kind create cluster
 
 deploy-v1:
 	$(clean_command)
