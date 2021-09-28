@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/nazufel/wizter/wizard"
+	pb "github.com/nazufel/wizter/proto"
 
 	"google.golang.org/grpc"
 )

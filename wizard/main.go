@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/nazufel/wizter/wizard"
+	pb "github.com/nazufel/wizter/proto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -63,7 +63,6 @@ func (s *server) List(e *pb.EmptyRequest, srv pb.WizardService_ListServer) error
 	dbConnectionString := "mongodb://" + os.Getenv("MONGO_HOST") + ":" + "27017" + "/" + os.Getenv("MONGO_DATABASE")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(dbConnectionString))
-
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
